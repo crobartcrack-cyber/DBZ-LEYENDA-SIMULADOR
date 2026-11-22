@@ -1848,3 +1848,514 @@ body[data-discard-side="rival"] .fase-descarte-hud { top: 58%; flex-direction: c
   .btn-configuracion, .btn-configuracion span, .configuracion-toggle,
   .configuracion-toggle-indicador, .configuracion-volver { transition: none; }
 }
+
+
+
+/* ============================================================
+   DBZ LEYENDA · ADAPTACIÓN MÓVIL VERTICAL
+   La interfaz móvil reorganiza los mismos nodos del juego:
+   no duplica estados ni modifica las reglas de combate.
+   ============================================================ */
+@media screen and (max-width: 760px) and (orientation: portrait) {
+  :root {
+    --mobile-gold: #e9bd63;
+    --mobile-gold-bright: #ffe6a0;
+    --mobile-cyan: #19dfff;
+    --mobile-purple: #bd75ff;
+    --mobile-gap: 3px;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body {
+    touch-action: pan-y;
+    background:
+      radial-gradient(ellipse at 50% 48%, rgba(92, 38, 132, .35), transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(31, 90, 153, .18), transparent 55%),
+      #080611;
+  }
+
+  .pantalla-juego:not(.oculto) {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    padding:
+      max(env(safe-area-inset-top), 3px)
+      max(env(safe-area-inset-right), 4px)
+      max(env(safe-area-inset-bottom), 3px)
+      max(env(safe-area-inset-left), 4px);
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows:
+      .48fr 1.18fr .92fr .48fr
+      1.62fr 1.62fr .48fr .42fr .52fr .86fr 1.12fr;
+    grid-template-areas:
+      "round . settings"
+      "opponent-hand opponent-hand opponent-hand"
+      "rival-discard rival-energy rival-deck"
+      "rival-status rival-status rival-status"
+      "rival-field rival-field rival-field"
+      "player-field player-field player-field"
+      "player-energy player-energy player-energy"
+      "player-status player-status player-status"
+      "player-action player-action player-action"
+      "player-deck . player-discard"
+      "player-hand player-hand player-hand";
+    gap: 0;
+    align-items: stretch;
+    justify-items: stretch;
+    overflow: hidden;
+    isolation: isolate;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(109, 62, 159, .20), transparent 68%),
+      linear-gradient(180deg, rgba(7, 5, 14, .96), rgba(17, 9, 28, .96) 48%, rgba(7, 5, 14, .98));
+  }
+
+  /* La estructura de escritorio deja de crear columnas laterales.
+     Sus elementos se convierten en ítems del tablero móvil. */
+  .pantalla-juego > .lateral,
+  .pantalla-juego .mesa,
+  .pantalla-juego .mitad,
+  .pantalla-juego .bloque-rival,
+  .pantalla-juego .bloque-jugador,
+  .pantalla-juego .controles-turno,
+  .pantalla-juego .pilas-descarte {
+    display: contents;
+  }
+
+  #indicador-ronda {
+    grid-area: round;
+    position: relative;
+    inset: auto;
+    align-self: center;
+    justify-self: start;
+    transform: skewX(-10deg);
+    width: auto;
+    min-width: 0;
+    min-height: 29px;
+    gap: 5px;
+    padding: 5px 9px;
+    border: 1.5px solid var(--mobile-gold);
+    border-radius: 7px;
+    background: linear-gradient(145deg, #8e151d, #35070d 78%);
+    box-shadow: 0 0 12px #ef333344, inset 0 0 8px #ffcf6a22;
+  }
+  #indicador-ronda .ronda-etiqueta,
+  #indicador-ronda .ronda-numero { transform: skewX(10deg); }
+  #indicador-ronda .ronda-etiqueta { font-size: 9px; color: #fff; }
+  #indicador-ronda .ronda-numero { font-size: 17px; color: #fff; }
+
+  #btn-configuracion {
+    grid-area: settings;
+    position: relative;
+    inset: auto;
+    align-self: center;
+    justify-self: end;
+    transform: none;
+    width: 35px;
+    height: 35px;
+    gap: 4px;
+    border-radius: 9px;
+    border-color: var(--mobile-gold);
+    background: linear-gradient(145deg, #30203f, #090710);
+    box-shadow: 0 0 12px #e9bd6330, inset 0 0 8px #e9bd6320;
+  }
+  #btn-configuracion:hover,
+  #btn-configuracion:active { transform: scale(.97); }
+  #btn-configuracion span { width: 16px; height: 2px; }
+
+  #mano-rival,
+  #mano-jugador {
+    position: relative;
+    grid-area: opponent-hand;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 3px 7px 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    border: 0;
+    border-bottom: 1px solid rgba(233, 189, 99, .35);
+    background:
+      linear-gradient(180deg, rgba(18, 12, 31, .78), rgba(31, 16, 46, .32)),
+      radial-gradient(ellipse at 50% 100%, rgba(98, 53, 147, .24), transparent 75%);
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+  }
+  #mano-rival::-webkit-scrollbar,
+  #mano-jugador::-webkit-scrollbar { display: none; }
+  #mano-jugador {
+    grid-area: player-hand;
+    border-top: 1px solid rgba(233, 189, 99, .42);
+    border-bottom: 0;
+    background: linear-gradient(0deg, rgba(18, 12, 31, .94), rgba(31, 16, 46, .28));
+  }
+
+  #mano-rival .carta-mano,
+  #mano-jugador .carta-mano {
+    width: clamp(43px, 14.2vw, 61px);
+    height: auto;
+    max-height: 94%;
+    aspect-ratio: 2.5 / 3.5;
+    flex: 0 0 auto;
+    margin-left: -9px;
+    border: 1.5px solid rgba(236, 190, 92, .88);
+    border-radius: 5px;
+    box-shadow: 0 3px 8px #000b, 0 0 5px #e9bd6330;
+    touch-action: none;
+  }
+  #mano-rival .carta-mano:first-child,
+  #mano-jugador .carta-mano:first-child { margin-left: 0; }
+
+  /* Recursos rivales: descarte violeta, energía integrada, mazo magenta. */
+  #descarte-rival {
+    grid-area: rival-discard;
+    justify-self: center;
+    align-self: center;
+  }
+  #mazo-rival {
+    grid-area: rival-deck;
+    justify-self: center;
+    align-self: center;
+  }
+  #energia-rival {
+    grid-area: rival-energy;
+    justify-self: stretch;
+    align-self: stretch;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 3px 2px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: none;
+    clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+    border: 0;
+    border-top: 2px solid #35eaff;
+    border-bottom: 2px solid #e9bd63;
+    border-radius: 0;
+    background:
+      linear-gradient(180deg, rgba(0, 160, 218, .35), rgba(3, 24, 55, .96)),
+      #06162c;
+    box-shadow: inset 0 0 15px #00dfff55, 0 0 11px #00dfff30;
+    position: relative;
+    z-index: 3;
+  }
+  #energia-rival::after {
+    content: "ENERGÍA RIVAL";
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    color: #fff;
+    font-size: clamp(7px, 2vw, 9px);
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-align: center;
+    text-shadow: 0 0 7px #00dfff;
+  }
+  #energia-rival .badge-energia-contenido {
+    transform: none;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  #energia-rival .esfera-energia { width: 11px; height: 11px; }
+  #energia-rival .valor-energia { font-size: clamp(13px, 4vw, 18px); color: #fff; }
+
+  /* Mensaje del rival: se coloca en el hueco inmediatamente anterior al campo. */
+  .indicador-turno {
+    grid-area: rival-status;
+    align-self: center;
+    justify-self: stretch;
+    width: 100%;
+    min-height: 0;
+    padding: 2px 0;
+    gap: 0;
+    text-align: center;
+    border-top: 1px solid rgba(233, 189, 99, .25);
+    border-bottom: 1px solid rgba(233, 189, 99, .25);
+    background: linear-gradient(90deg, transparent, rgba(16, 11, 26, .92) 18%, rgba(16, 11, 26, .92) 82%, transparent);
+    z-index: 5;
+  }
+  .texto-turno {
+    color: #fff !important;
+    font-size: clamp(9px, 2.6vw, 12px);
+    letter-spacing: .12em;
+    text-shadow: 0 0 9px #fff4 !important;
+  }
+  .texto-accion {
+    color: #fff;
+    font-size: clamp(12px, 3.6vw, 17px);
+    letter-spacing: .13em;
+    line-height: 1;
+    text-shadow: 0 0 10px #e9bd6388;
+  }
+
+  /* Tablero central: dos filas completas de siete espacios. */
+  #campo-rival,
+  #campo-jugador {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    justify-content: stretch;
+    align-content: stretch;
+    justify-items: center;
+    align-items: center;
+    gap: clamp(1px, .65vw, 4px);
+    padding: 4px 5px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(116, 75, 165, .22), transparent 68%),
+      linear-gradient(180deg, rgba(13, 10, 23, .92), rgba(24, 14, 38, .92));
+    position: relative;
+  }
+  #campo-rival {
+    grid-area: rival-field;
+    border-top: 2px solid rgba(233, 189, 99, .95);
+    border-left: 2px solid rgba(233, 189, 99, .65);
+    border-right: 2px solid rgba(233, 189, 99, .65);
+    border-bottom: 1px solid rgba(233, 189, 99, .48);
+    box-shadow: inset 0 0 18px rgba(100, 48, 148, .23);
+  }
+  #campo-jugador {
+    grid-area: player-field;
+    border-bottom: 2px solid rgba(233, 189, 99, .95);
+    border-left: 2px solid rgba(233, 189, 99, .65);
+    border-right: 2px solid rgba(233, 189, 99, .65);
+    border-top: 1px solid rgba(233, 189, 99, .48);
+    box-shadow: inset 0 0 18px rgba(100, 48, 148, .23);
+  }
+  .slot-carta {
+    width: min(12.4vw, 7.5vh);
+    height: auto;
+    max-height: 96%;
+    aspect-ratio: 2.5 / 3.5;
+    min-width: 0;
+    border: 1.5px solid rgba(90, 165, 255, .9);
+    border-radius: 6px;
+    background:
+      linear-gradient(145deg, rgba(16, 68, 144, .32), rgba(7, 17, 42, .68)),
+      rgba(10, 28, 66, .45);
+    box-shadow: inset 0 0 9px #278cff25, 0 2px 6px #0009;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+  .slot-carta:empty::after {
+    content: "";
+    width: 48%;
+    height: 48%;
+    border: 1px solid rgba(69, 151, 255, .2);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(35, 112, 255, .12), transparent 68%);
+    pointer-events: none;
+  }
+  .slot-carta .carta-ficha { border-radius: 4px; }
+  .slot-carta .carta-ficha img { object-fit: fill; }
+
+  /* Energía del jugador: trapecio que nace del borde inferior del tablero. */
+  #energia-jugador {
+    grid-area: player-energy;
+    justify-self: stretch;
+    align-self: stretch;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0 2px 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: none;
+    clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+    border: 0;
+    border-top: 2px solid #e9bd63;
+    border-bottom: 2px solid #35eaff;
+    border-radius: 0;
+    background:
+      linear-gradient(0deg, rgba(0, 160, 218, .35), rgba(3, 24, 55, .96)),
+      #06162c;
+    box-shadow: inset 0 0 15px #00dfff55, 0 0 11px #00dfff30;
+    position: relative;
+    z-index: 3;
+  }
+  #energia-jugador::after {
+    content: "TU ENERGÍA";
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    color: #fff;
+    font-size: clamp(7px, 2vw, 9px);
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-align: center;
+    text-shadow: 0 0 7px #00dfff;
+  }
+  #energia-jugador .badge-energia-contenido {
+    transform: none;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  #energia-jugador .esfera-energia { width: 11px; height: 11px; }
+  #energia-jugador .valor-energia { font-size: clamp(13px, 4vw, 18px); color: #fff; }
+
+  /* Estado del turno del jugador y acción PASAR, debajo de su energía. */
+  .pantalla-juego:has(.texto-turno.turno-jugador) .indicador-turno {
+    grid-area: player-status;
+    border-top-color: rgba(65, 190, 255, .35);
+    border-bottom-color: rgba(65, 190, 255, .35);
+  }
+  #btn-pasar {
+    grid-area: player-action;
+    align-self: center;
+    justify-self: center;
+    width: min(48%, 190px);
+    min-width: 125px;
+    min-height: 31px;
+    padding: 5px 15px;
+    border: 1.5px solid #a7ff83;
+    border-radius: 7px;
+    background: linear-gradient(180deg, #21a93c, #07591c);
+    color: #fff;
+    font-size: clamp(11px, 3vw, 14px);
+    letter-spacing: .15em;
+    clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+    filter: drop-shadow(0 0 7px rgba(54, 255, 94, .42));
+    box-shadow: inset 0 0 12px #a4ff7b44;
+    z-index: 5;
+    touch-action: manipulation;
+  }
+  #btn-pasar:disabled { opacity: .42; filter: grayscale(.8); }
+
+  /* Recursos del jugador, en los dos extremos bajo el botón. */
+  #mazo-jugador {
+    grid-area: player-deck;
+    justify-self: center;
+    align-self: center;
+  }
+  #descarte-jugador {
+    grid-area: player-discard;
+    justify-self: center;
+    align-self: center;
+  }
+
+  .mazo-slot,
+  .pila-descarte {
+    position: relative;
+    width: clamp(47px, 15vw, 66px);
+    min-width: 0;
+    max-height: 92%;
+    aspect-ratio: 2.5 / 3.5;
+    padding: 3px;
+    border-width: 1.5px;
+    border-radius: 6px;
+    gap: 2px;
+    box-shadow: 0 3px 9px #000a, inset 0 0 10px #ffffff0c;
+  }
+  .mazo-slot .mazo-etiqueta { font-size: 8px; letter-spacing: .08em; }
+  .mazo-slot small { font-size: 7px; }
+  .pila-descarte,
+  .pila-descarte-rival {
+    border-color: #c77bff !important;
+    background: linear-gradient(145deg, #35194e, #130d22 72%) !important;
+    box-shadow: 0 3px 9px #000a, inset 0 0 12px #b45cff28 !important;
+  }
+  .pila-descarte .mazo-etiqueta { font-size: 7px; }
+  .pila-descarte small { font-size: 6px; }
+  .mazo-rival,
+  #mazo-jugador {
+    border-color: #ff55b7;
+    background: linear-gradient(145deg, #8d155f, #3b0b3b 75%);
+    box-shadow: 0 3px 10px #000a, inset 0 0 13px #ff48bb30;
+  }
+
+  #btn-descartar {
+    position: fixed;
+    z-index: 80;
+    right: max(10px, env(safe-area-inset-right));
+    bottom: calc(19dvh + env(safe-area-inset-bottom));
+    width: 42px;
+    height: 42px;
+  }
+
+  /* Overlays siempre por encima de la nueva cuadrícula. */
+  .configuracion-overlay,
+  .panel-zona-overlay,
+  .visor-carta-overlay,
+  .fase-descarte-overlay,
+  .pantalla-resultado {
+    position: fixed;
+    z-index: 10000;
+  }
+  .visor-carta-overlay { padding: 1rem; }
+  .visor-carta-marco {
+    height: min(78dvh, 620px);
+    max-width: 88vw;
+  }
+  .panel-zona-ventana {
+    width: min(94vw, 620px);
+    max-height: 88dvh;
+  }
+  .panel-zona-grid {
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    gap: 9px;
+  }
+
+  /* Los controles quedan preparados para dedos, sin hover dependiente del mouse. */
+  button, .slot-carta, .carta-mano {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button { touch-action: manipulation; }
+  .btn-configuracion:focus-visible,
+  #btn-pasar:focus-visible,
+  .mazo-slot:focus-visible {
+    outline: 2px solid var(--mobile-gold-bright);
+    outline-offset: 2px;
+  }
+}
+
+/* Teléfonos muy estrechos: priorizar el ancho útil de las siete posiciones. */
+@media screen and (max-width: 380px) and (orientation: portrait) {
+  #campo-rival, #campo-jugador { gap: 1px; padding-left: 3px; padding-right: 3px; }
+  .slot-carta { width: min(12.2vw, 7.2vh); border-width: 1px; }
+  .mazo-slot, .pila-descarte { width: 46px; }
+  #mano-rival .carta-mano, #mano-jugador .carta-mano { width: 13.8vw; margin-left: -11px; }
+}
+
+/* En móviles apaisados, el diseño de escritorio se reduce sin forzar scroll. */
+@media screen and (max-width: 900px) and (orientation: landscape) {
+  .pantalla-juego:not(.oculto) { height: 100vh; height: 100dvh; }
+  .lateral { width: 13vw; }
+  .mesa { width: 74vw; min-width: 0; }
+  .mazo-slot { width: min(9vw, 19vh); }
+  .pila-descarte { width: min(8vw, 17vh); min-width: 0; }
+  .slot-carta { width: min(8.6vw, 17vh); }
+  .carta-mano { width: min(7.5vw, 14vh); }
+  .btn-pasar { width: min(15vw, 150px); min-width: 90px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @media screen and (max-width: 760px) {
+    .slot-carta, .carta-mano, .mazo-slot, #btn-pasar { transition: none !important; }
+  }
+}
