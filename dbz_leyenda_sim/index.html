@@ -1,0 +1,338 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DBZ Leyenda - Simulador</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <!-- Menú principal y construcción de mazo -->
+  <section id="pantalla-inicio" class="pantalla-inicio menu-principal">
+    <header class="menu-topbar">
+      <div class="marca-juego"><span class="marca-orbe">Z</span><div><small>DRAGON BALL</small><strong>LEYENDA</strong></div></div>
+      <div class="menu-topbar-centro">PREPARÁ TU COMBATE <span>Z</span> FORJÁ TU DESTINO</div>
+      <div class="menu-version">LOCAL BATTLE SYSTEM</div>
+    </header>
+
+    <div class="menu-principal-contenido">
+      <section class="constructor-panel">
+        <div class="panel-heading">
+          <div><span class="sobrelinea">TU ESTRATEGIA COMIENZA AQUÍ</span><h1>CREACIÓN DE <em>MAZO</em></h1></div>
+          <div class="contador-mazo"><strong id="contador-mazo">0</strong><span>CARTAS</span></div>
+        </div>
+        <div class="mazo-progreso"><div id="mazo-progreso-barra"></div></div>
+        <div class="mazo-estado" id="mazo-estado">AGREGÁ 40 CARTAS PARA DESBLOQUEAR EL COMBATE</div>
+        <div class="mazo-construccion" id="mazo-construccion">
+          <div class="mazo-vacio" id="mazo-vacio"><span>✧</span><strong>Tu mazo está esperando</strong><small>Seleccioná cartas del catálogo para comenzar a construirlo</small></div>
+          <div class="mazo-construccion-grid" id="mazo-construccion-grid"></div>
+        </div>
+        <div class="catalogo-heading"><div><span class="sobrelinea">ARCHIVO DE GUERREROS</span><h2>CATÁLOGO DE CARTAS</h2></div><span class="catalogo-ayuda">CLICK PARA AGREGAR · MANTENER PRESIONADO PARA VER</span></div>
+        <div class="constructor-catalogo" id="constructor-catalogo"><div class="catalogo-cargando">CARGANDO ARCHIVO...</div></div>
+      </section>
+
+      <aside class="modos-panel">
+        <div class="modos-decoracion">✦ &nbsp; ✧ &nbsp; ✦</div>
+        <span class="sobrelinea">ELEGÍ TU DESTINO</span>
+        <h2>MODOS DE<br/><em>JUEGO</em></h2>
+        <p class="modos-intro"></p>
+        <button type="button" class="modo-card modo-seleccionado" id="modo-local" aria-pressed="true">
+          <span class="modo-numero">01</span><span class="modo-icono">⚔</span>
+          <span class="modo-info"><strong>1 VS 1 LOCAL</strong><small>DOS JUGADORES · MISMA MESA</small></span>
+          <span class="modo-check">✓</span>
+        </button>
+        <div class="modo-proximamente"><span>02</span><div><strong>PRÓXIMAMENTE</strong><small>NUEVOS MODOS EN CAMINO</small></div><span>🔒</span></div>
+        <div class="modo-resumen"><span>FORMATO</span><strong>COMBATE LOCAL</strong><span>MAZO DE CADA JUGADOR</span><strong>EL MISMO MAZO CREADO</strong></div>
+        <button type="button" id="btn-jugar" class="btn-jugar" disabled><span>INICIAR PARTIDA</span><b>➜</b></button>
+        <div class="requisito-mazo" id="requisito-mazo">NECESITÁS AL MENOS 40 CARTAS</div>
+      </aside>
+    </div>
+    <footer class="menu-footer"><span>✦ DBZ LEYENDA</span><span>CONSTRUÍ TU LEYENDA, COMBATÍ POR ELLA</span><span>LOCAL PLAY</span></footer>
+  </section>
+
+  <!-- Pantalla de juego -->
+  <main id="pantalla-juego" class="pantalla-juego oculto">
+
+    <!-- Lateral izquierdo -->
+    <aside class="lateral lateral-izquierdo" id="lateral-izquierdo">
+
+        <div class="indicador-ronda" id="indicador-ronda">
+          <span class="ronda-etiqueta">RONDA</span>
+          <span class="ronda-numero" id="numero-ronda">1</span>
+        </div>
+      <button type="button" class="mazo-slot pila-descarte pila-descarte-rival descarte-rival-superior" id="descarte-rival" title="Ver la pila de descarte rival">
+        <span class="mazo-etiqueta">PILA DE<br>DESCARTE</span>
+        <small>RIVAL</small>
+      </button>
+
+      <button type="button" class="btn-configuracion" id="btn-configuracion"
+        aria-label="Abrir configuración" aria-haspopup="dialog" aria-expanded="false" title="Configuración">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="bloque-jugador">
+        <button
+          type="button"
+          class="mazo-slot"
+          id="mazo-jugador"
+          title="Abrir mazo del jugador"
+          aria-label="Abrir mazo del jugador"
+        >
+          <span class="mazo-etiqueta">MAZO</span>
+          <small class="mazo-lado-label">JUGADOR</small>
+        </button>
+
+        <div
+          class="badge-energia energia-jugador"
+          id="energia-jugador"
+          title="Tu energia"
+        >
+          <div class="badge-energia-contenido">
+            <span class="esfera-energia" aria-hidden="true"></span>
+            <span class="valor-energia" id="valor-energia-jugador">500</span>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Mesa central -->
+    <div class="mesa" id="mesa">
+
+      <!-- Mitad superior: rival -->
+      <div class="mitad mitad-rival">
+        <div class="zona-mano zona-mano-rival" id="mano-rival"></div>
+
+        <div class="campo-grid" id="campo-rival">
+          <div class="slot-carta" data-lado="rival" data-slot="1"></div>
+          <div class="slot-carta" data-lado="rival" data-slot="2"></div>
+          <div class="slot-carta" data-lado="rival" data-slot="3"></div>
+          <div class="slot-carta" data-lado="rival" data-slot="4"></div>
+          <div class="slot-carta" data-lado="rival" data-slot="5"></div>
+          <div class="slot-carta" data-lado="rival" data-slot="6"></div>
+          <div class="slot-carta" data-lado="rival" data-slot="7"></div>
+        </div>
+      </div>
+
+      <!-- Mitad inferior: jugador -->
+      <div class="mitad mitad-jugador">
+        <div class="campo-grid" id="campo-jugador">
+          <div class="slot-carta" data-lado="jugador" data-slot="1"></div>
+          <div class="slot-carta" data-lado="jugador" data-slot="2"></div>
+          <div class="slot-carta" data-lado="jugador" data-slot="3"></div>
+          <div class="slot-carta" data-lado="jugador" data-slot="4"></div>
+          <div class="slot-carta" data-lado="jugador" data-slot="5"></div>
+          <div class="slot-carta" data-lado="jugador" data-slot="6"></div>
+          <div class="slot-carta" data-lado="jugador" data-slot="7"></div>
+        </div>
+
+        <div class="zona-mano zona-mano-jugador" id="mano-jugador"></div>
+      </div>
+
+
+    </div>
+
+    <!-- Lateral derecho -->
+    <aside class="lateral lateral-derecho" id="lateral-derecho">
+
+      <!-- La ronda y el mazo rival quedan agrupados en la parte superior derecha. -->
+      <div class="bloque-rival">
+
+        <button
+          type="button"
+          class="mazo-slot mazo-rival"
+          id="mazo-rival"
+          title="Abrir mazo del rival"
+          aria-label="Abrir mazo del rival"
+        >
+          <span class="mazo-etiqueta">MAZO</span>
+          <small class="mazo-lado-label">RIVAL</small>
+        </button>
+
+        <div
+          class="badge-energia energia-rival"
+          id="energia-rival"
+          title="Energia del rival"
+        >
+          <div class="badge-energia-contenido">
+            <span class="esfera-energia" aria-hidden="true"></span>
+            <span class="valor-energia" id="valor-energia-rival">500</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indicador de turno y boton PASAR -->
+      <div class="controles-turno">
+
+        <div class="indicador-turno">
+          <span class="texto-turno" id="texto-turno">
+            TU TURNO:
+          </span>
+
+          <strong class="texto-accion" id="texto-accion">
+            ATACAS
+          </strong>
+        </div>
+
+        <button
+          type="button"
+          class="btn-pasar"
+          id="btn-pasar"
+        >
+          PASAR
+        </button>
+
+      </div>
+
+      <!-- Boton de descarte -->
+      <button
+        type="button"
+        class="btn-descartar oculto"
+        id="btn-descartar"
+        title="Descartar carta seleccionada"
+        aria-label="Descartar carta seleccionada"
+      >
+        ✕
+      </button>
+
+      <div class="pilas-descarte" aria-label="Pila de descarte del jugador">
+        <button type="button" class="mazo-slot pila-descarte" id="descarte-jugador" title="Ver tu pila de descarte">
+          <span class="mazo-etiqueta">PILA DE<br>DESCARTE</span>
+          <small>JUGADOR</small>
+        </button>
+      </div>
+</aside>
+
+<!-- PANTALLA DE RESULTADO -->
+<section
+  class="pantalla-resultado oculto"
+  id="pantalla-resultado"
+  aria-live="assertive"
+>
+  <div class="resultado-destellos"></div>
+
+  <div class="resultado-marco">
+    <div class="resultado-linea-superior"></div>
+
+    <div class="resultado-insignia">
+      <span class="resultado-insignia-icono">★</span>
+    </div>
+
+    <div class="resultado-etiqueta">
+      RESULTADO DEL COMBATE
+    </div>
+
+    <h1 class="resultado-titulo" id="resultado-titulo">
+      GANASTE
+    </h1>
+
+    <div class="resultado-separador">
+      <span></span>
+      <span class="resultado-separador-diamante">◆</span>
+      <span></span>
+    </div>
+
+    <h2
+      class="resultado-subtitulo"
+      id="resultado-subtitulo"
+    >
+      SOS UN CRACK
+    </h2>
+
+    <p
+      class="resultado-detalle"
+      id="resultado-detalle"
+    >
+      DEJASTE AL RIVAL SIN ENERGIA
+    </p>
+
+    <div class="resultado-ornamento">
+      <span>✦</span>
+      <span>✧</span>
+      <span>✦</span>
+    </div>
+
+    <button
+      type="button"
+      class="btn-reiniciar"
+      id="btn-reiniciar"
+    >
+      VOLVER A JUGAR
+    </button>
+
+    <button type="button" class="btn-menu-principal" id="btn-menu-principal">VOLVER AL MENÚ PRINCIPAL</button>
+    <div class="resultado-linea-inferior"></div>
+  </div>
+</section>
+  </main>
+
+  <!-- Visor de mazo y pila de descarte -->
+  <section class="panel-zona-overlay oculto" id="panel-zona-overlay" aria-modal="true" role="dialog" aria-labelledby="panel-zona-titulo">
+    <div class="panel-zona-ventana">
+      <header class="panel-zona-header">
+        <div><span class="sobrelinea">ARCHIVO DE COMBATE</span><h2 id="panel-zona-titulo">MAZO</h2><p id="panel-zona-subtitulo">CARTAS DISPONIBLES</p></div>
+        <button type="button" id="panel-zona-cerrar" class="panel-zona-cerrar" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="panel-zona-grid" id="panel-zona-grid"></div>
+    </div>
+  </section>
+
+  <!-- Configuración in-game -->
+  <section class="configuracion-overlay oculto" id="configuracion-overlay"
+    aria-modal="true" role="dialog" aria-labelledby="configuracion-titulo">
+    <button type="button" class="configuracion-backdrop" id="configuracion-backdrop"
+      aria-label="Cerrar configuración"></button>
+    <div class="configuracion-ventana">
+      <div class="configuracion-ornamento configuracion-ornamento-superior"><span>◆</span></div>
+      <header class="configuracion-header">
+        <span class="configuracion-sobrelinea">DBZ · LEYENDA</span>
+        <h2 id="configuracion-titulo">CONFIGURACIÓN</h2>
+        <span class="configuracion-subtitulo">AJUSTES DE COMBATE</span>
+      </header>
+      <div class="configuracion-separador"><i></i><span>✦</span><i></i></div>
+      <div class="configuracion-opciones">
+        <div class="configuracion-fila">
+          <span class="configuracion-icono-sonido" aria-hidden="true">🔊</span>
+          <button type="button" class="configuracion-toggle" id="toggle-sonido"
+            role="switch" aria-checked="true" aria-label="Activar o desactivar sonido">
+            <span class="configuracion-toggle-indicador"></span>
+          </button>
+        </div>
+        <button type="button" class="configuracion-volver" id="configuracion-volver">
+          VOLVER AL MENÚ
+        </button>
+      </div>
+      <div class="configuracion-ornamento configuracion-ornamento-inferior"><span>◆</span></div>
+    </div>
+  </section>
+
+  <!-- Visor global: queda por encima del menú y de la mesa de juego -->
+  <div
+    class="visor-carta-overlay oculto"
+    id="visor-carta-overlay"
+    aria-modal="true"
+    role="dialog"
+    aria-label="Vista ampliada de carta"
+  >
+    <div class="visor-carta-marco" id="visor-carta-marco"></div>
+  </div>
+
+
+  <!-- Fase obligatoria de descarte: la mano activa queda visible sobre el fondo atenuado. -->
+  <section class="fase-descarte-overlay oculto" id="fase-descarte-overlay" aria-live="assertive">
+    <div class="fase-descarte-backdrop"></div>
+    <div class="fase-descarte-hud">
+      <div class="fase-descarte-etiqueta" id="fase-descarte-etiqueta">FIN DEL TURNO</div>
+      <h2 id="fase-descarte-titulo">ELIGE 2 CARTAS PARA DESCARTAR</h2>
+      <p id="fase-descarte-ayuda">Seleccioná las cartas de tu mano.</p>
+      <button type="button" id="btn-confirmar-descarte" disabled>CONFIRMAR <span id="contador-seleccion-descarte">0/2</span></button>
+    </div>
+  </section>
+
+  <!-- JavaScript modular -->
+  <script type="module" src="./js/main.js"></script>
+
+</body>
+</html>
