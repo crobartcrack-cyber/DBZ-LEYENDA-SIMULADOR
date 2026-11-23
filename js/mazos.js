@@ -15,8 +15,10 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
   const catalogoGrid = elementos.constructorCatalogo;
   const filtrosCatalogo = {
     esfera: elementos.filtroEsfera,
-    tipo: elementos.filtroTipo,
+    tipoOpciones: elementos.filtroTipoOpciones,
     buscar: elementos.filtroBuscar,
+    masFiltros: elementos.toggleMasFiltros,
+    filtrosAvanzados: elementos.filtrosAvanzados,
     campo: elementos.ordenCampo,
     direccion: elementos.ordenDireccion,
     limpiar: elementos.limpiarFiltros,
@@ -436,7 +438,7 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
         tipos.add("ESFERAS DEL DRAGON");
         return;
       }
-      texto.split(/[\\s,/+]+/).filter(Boolean).forEach((parte) => {
+      texto.split(/[\s,/+]+/).filter(Boolean).forEach((parte) => {
         if (parte === "INSTANTANEAS") tipos.add("INSTANTANEA");
         else if (parte === "MODIFICADORAS") tipos.add("MODIFICADORA");
         else if (parte === "INSTANTANEA") tipos.add("INSTANTANEA");
@@ -454,6 +456,8 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
       : null;
   }
 
+  const tiposSeleccionados = new Set();
+
   function inicializarFiltrosCatalogo() {
     if (filtrosCatalogo.esfera) {
       const esferas = [...new Set(estadoJuego.catalogo.map((c) => String(c.ESFERA ?? "")).filter(Boolean))]
@@ -466,15 +470,26 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
         filtrosCatalogo.esfera.appendChild(option);
       });
     }
-    if (filtrosCatalogo.tipo) {
+    if (filtrosCatalogo.tipoOpciones) {
       const tipos = [...new Set(estadoJuego.catalogo.flatMap(tiposNormalizados))]
         .sort((a, b) => a.localeCompare(b, "es"));
-      filtrosCatalogo.tipo.innerHTML = '<option value="">TODOS</option>';
+      filtrosCatalogo.tipoOpciones.innerHTML = "";
+      tiposSeleccionados.clear();
       tipos.forEach((tipo) => {
-        const option = document.createElement("option");
-        option.value = tipo;
-        option.textContent = tipo;
-        filtrosCatalogo.tipo.appendChild(option);
+        const label = document.createElement("label");
+        label.className = "filtro-tipo-opcion";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = tipo;
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) tiposSeleccionados.add(tipo);
+          else tiposSeleccionados.delete(tipo);
+          renderizarCatalogoConstructor();
+        });
+        const texto = document.createElement("span");
+        texto.textContent = tipo;
+        label.append(checkbox, texto);
+        filtrosCatalogo.tipoOpciones.appendChild(label);
       });
     }
   }
@@ -489,35 +504,39 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
 
   function obtenerCartasFiltradas() {
     const esfera = filtrosCatalogo.esfera?.value || "";
-    const tipo = filtrosCatalogo.tipo?.value || "";
     const busqueda = normalizarTextoBusqueda(filtrosCatalogo.buscar?.value || "");
     const campo = filtrosCatalogo.campo?.value || "catalogo";
     const direccion = filtrosCatalogo.direccion?.value === "desc" ? -1 : 1;
+    const camposOrden = { id: "ID", ataque: "ATAQUE", defensa: "DEFENSA", esfera: "ESFERA" };
+    const campoDato = camposOrden[campo];
 
     const cartas = estadoJuego.catalogo.filter((carta) => {
       if (esfera && String(carta.ESFERA ?? "") !== esfera) return false;
-      if (tipo && !tiposNormalizados(carta).includes(tipo)) return false;
+      const tiposCarta = tiposNormalizados(carta);
+      // La selección de tipos funciona con lógica OR: basta coincidir con uno.
+      if (tiposSeleccionados.size && ![...tiposSeleccionados].some((tipo) => tiposCarta.includes(tipo))) return false;
       if (busqueda) {
         const contenido = normalizarTextoBusqueda([
           carta.NOMBRE,
           carta.TEXTO,
           carta.DESCRIPCION,
           carta.DESCRIPCION_CORTA,
+          carta.PERSONAJE,
         ].filter(Boolean).join(" "));
         if (!contenido.includes(busqueda)) return false;
       }
       return true;
     });
 
-    if (campo !== "catalogo") {
+    if (campoDato) {
       cartas.sort((a, b) => {
-        const av = valorNumerico(a, campo);
-        const bv = valorNumerico(b, campo);
-        // Las cartas sin valor de ataque/defensa quedan siempre al final.
+        const av = valorNumerico(a, campoDato);
+        const bv = valorNumerico(b, campoDato);
+        // Los valores ausentes siempre quedan al final, en ambas direcciones.
         if (av === null && bv === null) return numeroOrden(a.ID) - numeroOrden(b.ID);
         if (av === null) return 1;
         if (bv === null) return -1;
-        return (av - bv) * direccion || (numeroOrden(a.ID) - numeroOrden(b.ID)) * direccion;
+        return (av - bv) * direccion || (numeroOrden(a.ID) - numeroOrden(b.ID));
       });
     } else {
       cartas.sort((a, b) => (numeroOrden(a.ID) - numeroOrden(b.ID)) * direccion);
@@ -526,12 +545,19 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
   }
 
   function conectarFiltrosCatalogo() {
-    [filtrosCatalogo.esfera, filtrosCatalogo.tipo, filtrosCatalogo.buscar,
+    [filtrosCatalogo.esfera, filtrosCatalogo.buscar,
       filtrosCatalogo.campo, filtrosCatalogo.direccion].filter(Boolean)
       .forEach((control) => control.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarCatalogoConstructor));
+    filtrosCatalogo.masFiltros?.addEventListener("click", () => {
+      const mostrar = filtrosCatalogo.filtrosAvanzados?.classList.contains("oculto");
+      filtrosCatalogo.filtrosAvanzados?.classList.toggle("oculto", !mostrar);
+      filtrosCatalogo.masFiltros.setAttribute("aria-expanded", String(Boolean(mostrar)));
+      filtrosCatalogo.masFiltros.textContent = mostrar ? "− MENOS FILTROS" : "＋ MÁS FILTROS";
+    });
     filtrosCatalogo.limpiar?.addEventListener("click", () => {
       if (filtrosCatalogo.esfera) filtrosCatalogo.esfera.value = "";
-      if (filtrosCatalogo.tipo) filtrosCatalogo.tipo.value = "";
+      tiposSeleccionados.clear();
+      filtrosCatalogo.tipoOpciones?.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => { checkbox.checked = false; });
       if (filtrosCatalogo.buscar) filtrosCatalogo.buscar.value = "";
       if (filtrosCatalogo.campo) filtrosCatalogo.campo.value = "catalogo";
       if (filtrosCatalogo.direccion) filtrosCatalogo.direccion.value = "asc";

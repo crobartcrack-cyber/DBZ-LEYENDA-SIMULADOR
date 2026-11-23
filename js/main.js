@@ -38,7 +38,9 @@ function iniciarJuego() {
     mazoVacio: document.getElementById("mazo-vacio"),
     constructorCatalogo: document.getElementById("constructor-catalogo"),
     filtroEsfera: document.getElementById("filtro-esfera"),
-    filtroTipo: document.getElementById("filtro-tipo"),
+    filtroTipoOpciones: document.getElementById("filtro-tipo-opciones"),
+    toggleMasFiltros: document.getElementById("toggle-mas-filtros"),
+    filtrosAvanzados: document.getElementById("filtros-avanzados"),
     filtroBuscar: document.getElementById("filtro-buscar"),
     ordenCampo: document.getElementById("orden-campo"),
     ordenDireccion: document.getElementById("orden-direccion"),
@@ -412,6 +414,7 @@ function iniciarJuego() {
   // CONFIGURACIÓN IN-GAME
   // --------------------------------
   const btnConfiguracion = document.getElementById("btn-configuracion");
+  const btnOpcionesMenu = document.getElementById("btn-opciones-menu");
   const configuracionOverlay = document.getElementById("configuracion-overlay");
   const configuracionBackdrop = document.getElementById("configuracion-backdrop");
   const toggleSonido = document.getElementById("toggle-sonido");
@@ -454,10 +457,13 @@ function iniciarJuego() {
     actualizarTogglePantallaCompleta();
   }
 
-  function abrirConfiguracion() {
+  let disparadorConfiguracion = btnConfiguracion;
+
+  function abrirConfiguracion(evento) {
     if (configuracionOverlay.classList.contains("oculto")) {
+      disparadorConfiguracion = evento?.currentTarget || btnConfiguracion;
       configuracionOverlay.classList.remove("oculto");
-      btnConfiguracion.setAttribute("aria-expanded", "true");
+      disparadorConfiguracion?.setAttribute("aria-expanded", "true");
       actualizarToggleSonido();
       actualizarTogglePantallaCompleta();
       sonidos.menuAbrir?.();
@@ -468,13 +474,14 @@ function iniciarJuego() {
   function cerrarConfiguracion() {
     if (!configuracionOverlay.classList.contains("oculto")) {
       configuracionOverlay.classList.add("oculto");
-      btnConfiguracion.setAttribute("aria-expanded", "false");
-      btnConfiguracion.focus();
+      disparadorConfiguracion?.setAttribute("aria-expanded", "false");
+      disparadorConfiguracion?.focus?.();
       sonidos.menuCerrar?.();
     }
   }
 
-  btnConfiguracion.addEventListener("click", abrirConfiguracion);
+  btnConfiguracion?.addEventListener("click", abrirConfiguracion);
+  btnOpcionesMenu?.addEventListener("click", abrirConfiguracion);
   configuracionBackdrop.addEventListener("click", cerrarConfiguracion);
   toggleSonido.addEventListener("click", () => {
     const activar = !sonidos.estaActivo();
@@ -484,10 +491,7 @@ function iniciarJuego() {
   });
   togglePantallaCompleta.addEventListener("click", alternarPantallaCompleta);
   document.addEventListener("fullscreenchange", actualizarTogglePantallaCompleta);
-  btnConfiguracionVolver.addEventListener("click", async () => {
-    cerrarConfiguracion();
-    await volverAlMenuPrincipal();
-  });
+  btnConfiguracionVolver.addEventListener("click", cerrarConfiguracion);
   document.addEventListener("keydown", (evento) => {
     if (evento.key === "Escape" && !configuracionOverlay.classList.contains("oculto")) {
       cerrarConfiguracion();
