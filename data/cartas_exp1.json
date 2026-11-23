@@ -71,7 +71,7 @@
     "PERSONAJE": "GOKU"
   },
   {
-    "TIPO": "INSTANTANEAS",
+    "TIPO": "INSTANTANEA",
     "NOMBRE": "DEVOLVER ATAQUE",
     "ESFERA": 5,
     "ID": 10,
@@ -255,7 +255,10 @@
     "PERSONAJE": "GOKU"
   },
   {
-    "TIPO": "INSTANTANEAS MODIFICADORAS",
+    "TIPO": [
+      "INSTANTANEA",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "SUPER ATAQUE",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -282,7 +285,10 @@
     "PERSONAJE": "CELL"
   },
   {
-    "TIPO": "INSTANTANEAS MODIFICADORAS",
+    "TIPO": [
+      "INSTANTANEA",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "CAMPO MAGNETICO",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -350,7 +356,7 @@
     "PERSONAJE": "TRUNKS"
   },
   {
-    "TIPO": "INSTANTANEAS",
+    "TIPO": "INSTANTANEA",
     "NOMBRE": "NEUTRALIZACION",
     "ESFERA": 7,
     "ID": 35,
@@ -466,7 +472,7 @@
     "PERSONAJE": "GOHAN"
   },
   {
-    "TIPO": "MODIFICADORAS",
+    "TIPO": "MODIFICADORA",
     "NOMBRE": "TECNICAS MIXTAS",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -531,7 +537,7 @@
     "PERSONAJE": "CELL"
   },
   {
-    "TIPO": "MODIFICADORAS",
+    "TIPO": "MODIFICADORA",
     "NOMBRE": "DEFENSA SUPERIOR",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -558,7 +564,7 @@
     "PERSONAJE": "KRILIN"
   },
   {
-    "TIPO": "MODIFICADORAS",
+    "TIPO": "MODIFICADORA",
     "NOMBRE": "FUERZA DESCOMUNAL",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -669,7 +675,10 @@
     "PERSONAJE": "ROSHI"
   },
   {
-    "TIPO": "INSTANTANEA MODIFICADORAS",
+    "TIPO": [
+      "INSTANTANEA",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "LA FURIA DE BULMA",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -685,7 +694,7 @@
     "CLAVE": ""
   },
   {
-    "TIPO": "MODIFICADORAS",
+    "TIPO": "MODIFICADORA",
     "NOMBRE": "LA NUBE DE GOKU",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -701,7 +710,10 @@
     "CLAVE": ""
   },
   {
-    "TIPO": "INSTANTANEA MODIFICADORAS",
+    "TIPO": [
+      "INSTANTANEA",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "INDESTRUCTIBLE",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -719,6 +731,14 @@
   {
     "TIPO": "MODIFICADORA",
     "NOMBRE": "ATAQUE SORPRESA",
+    "DEFENSA+": {
+      "operacion": "sumar",
+      "valor": 0
+    },
+    "ATAQUE+": {
+      "operacion": "sumar",
+      "valor": 50
+    },
     "ESFERA": 4,
     "ID": 68,
     "TEXTO": "MODIFICA LOS VALORES DE UNA CARTA EN +0 +50.",
@@ -774,7 +794,10 @@
     "PERSONAJE": "GOKU"
   },
   {
-    "TIPO": "INSTANTANEA MODIFICADORAS",
+    "TIPO": [
+      "INSTANTANEA",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "MUSCULOS DE ACERO",
     "DEFENSA+": {
       "operacion": "sumar",
@@ -918,7 +941,10 @@
     "CLAVE": "ANULA-ATAQUE-DESCARTA-DEFENSA-CONTADOR DE ENERGIA"
   },
   {
-    "TIPO": "ATAQUE MODIFICADORA",
+    "TIPO": [
+      "ATAQUE",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "KAIOH SHIN",
     "DEFENSA+": {
       "operacion": "multiplicar",
@@ -937,7 +963,10 @@
     "PERSONAJE": "SHIN"
   },
   {
-    "TIPO": "ATAQUE MODIFICADORA",
+    "TIPO": [
+      "ATAQUE",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "EL LADO OSCURO",
     "DEFENSA+": {
       "operacion": "multiplicar",
@@ -1136,7 +1165,7 @@
   {
     "TIPO": "ATAQUE",
     "NOMBRE": "SUPER SAIYAMAN",
-    "ESFERA": 6,
+    "ESFERA": 7,
     "DEFENSA": 50,
     "ATAQUE": 70,
     "ID": 107,
@@ -1151,8 +1180,8 @@
     ],
     "NOMBRE": "DENDE",
     "ESFERA": 1,
-    "DEFENSA": 50,
-    "ATAQUE": 70,
+    "DEFENSA": 70,
+    "ATAQUE": 50,
     "ID": 108,
     "TEXTO": "DENDE POSEE EL DON DE LA CURACION Y PUEDE HABLAR CON EL GRAN DRAGON. RECUPERA 50 PUNTOS DEL CONTADOR DE ENERGIA.",
     "CLAVE": "RECUPERA-CONTADOR DE ENERGIA",
@@ -1251,6 +1280,14 @@
   {
     "TIPO": "MODIFICADORA",
     "NOMBRE": "SIN PIEDAD",
+    "DEFENSA+": {
+      "operacion": "sumar",
+      "valor": 0
+    },
+    "ATAQUE+": {
+      "operacion": "sumar",
+      "valor": 50
+    },
     "ESFERA": 4,
     "ID": 117,
     "TEXTO": "SI TE ENFRENTAS A UN ENEMIGO QUE NO SEA DE LA FAMILIA SAIYAJIN MODIFICA LA CARTA EN +0 +50.",
@@ -1274,7 +1311,10 @@
     "CLAVE": "RIVAL-DESCARTA-MANO"
   },
   {
-    "TIPO": "INSTANTANEA MODIFICADORA",
+    "TIPO": [
+      "INSTANTANEA",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "IRA INCONTROLABLE",
     "DEFENSA+": {
       "operacion": "restar",
@@ -1290,7 +1330,10 @@
     "CLAVE": ""
   },
   {
-    "TIPO": "INSTANTANEA MODIFICADORA",
+    "TIPO": [
+      "INSTANTANEA",
+      "MODIFICADORA"
+    ],
     "NOMBRE": "FEA LA ACTITUD",
     "DEFENSA+": {
       "operacion": "restar",
@@ -1324,7 +1367,7 @@
   {
     "TIPO": "HABILIDAD",
     "NOMBRE": "FUERZAS UNIDAS",
-    "ESFERA": 1,
+    "ESFERA": 2,
     "ID": 123,
     "TEXTO": "PAGA EL COSTE DE ESTA CARTA Y BAJA DOS ATAQUES SIN NECESIDAD DE PAGAR POR ESTOS.",
     "CLAVE": "BAJA"

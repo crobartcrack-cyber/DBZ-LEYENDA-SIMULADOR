@@ -16,7 +16,7 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
   const filtrosCatalogo = {
     esfera: elementos.filtroEsfera,
     tipo: elementos.filtroTipo,
-    numero: elementos.filtroNumero,
+    buscar: elementos.filtroBuscar,
     campo: elementos.ordenCampo,
     direccion: elementos.ordenDireccion,
     limpiar: elementos.limpiarFiltros,
@@ -479,17 +479,33 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
     }
   }
 
+  function normalizarTextoBusqueda(valor) {
+    return String(valor ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es")
+      .trim();
+  }
+
   function obtenerCartasFiltradas() {
     const esfera = filtrosCatalogo.esfera?.value || "";
     const tipo = filtrosCatalogo.tipo?.value || "";
-    const numero = filtrosCatalogo.numero?.value.trim() || "";
+    const busqueda = normalizarTextoBusqueda(filtrosCatalogo.buscar?.value || "");
     const campo = filtrosCatalogo.campo?.value || "catalogo";
     const direccion = filtrosCatalogo.direccion?.value === "desc" ? -1 : 1;
 
     const cartas = estadoJuego.catalogo.filter((carta) => {
       if (esfera && String(carta.ESFERA ?? "") !== esfera) return false;
       if (tipo && !tiposNormalizados(carta).includes(tipo)) return false;
-      if (numero && !String(carta.ID ?? "").includes(numero)) return false;
+      if (busqueda) {
+        const contenido = normalizarTextoBusqueda([
+          carta.NOMBRE,
+          carta.TEXTO,
+          carta.DESCRIPCION,
+          carta.DESCRIPCION_CORTA,
+        ].filter(Boolean).join(" "));
+        if (!contenido.includes(busqueda)) return false;
+      }
       return true;
     });
 
@@ -510,13 +526,13 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
   }
 
   function conectarFiltrosCatalogo() {
-    [filtrosCatalogo.esfera, filtrosCatalogo.tipo, filtrosCatalogo.numero,
+    [filtrosCatalogo.esfera, filtrosCatalogo.tipo, filtrosCatalogo.buscar,
       filtrosCatalogo.campo, filtrosCatalogo.direccion].filter(Boolean)
       .forEach((control) => control.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarCatalogoConstructor));
     filtrosCatalogo.limpiar?.addEventListener("click", () => {
       if (filtrosCatalogo.esfera) filtrosCatalogo.esfera.value = "";
       if (filtrosCatalogo.tipo) filtrosCatalogo.tipo.value = "";
-      if (filtrosCatalogo.numero) filtrosCatalogo.numero.value = "";
+      if (filtrosCatalogo.buscar) filtrosCatalogo.buscar.value = "";
       if (filtrosCatalogo.campo) filtrosCatalogo.campo.value = "catalogo";
       if (filtrosCatalogo.direccion) filtrosCatalogo.direccion.value = "asc";
       renderizarCatalogoConstructor();

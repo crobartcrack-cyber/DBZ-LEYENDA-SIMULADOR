@@ -4,6 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#10091b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>DBZ Leyenda - Simulador</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
@@ -65,22 +69,19 @@
     <div class="menu-principal-contenido oculto" id="editor-mazo">
       <section class="constructor-panel">
         <div class="editor-mazo-toolbar">
-          <button type="button" id="volver-administrador" class="btn-volver-admin">← VOLVER A MIS MAZOS</button>
-          <div><span class="sobrelinea">ARCHIVO DE GUERREROS</span><strong id="titulo-editor-mazo">EDITANDO MAZO</strong></div>
-          <label for="nombre-mazo-editor">NOMBRE DEL MAZO</label>
+          <button type="button" id="volver-administrador" class="btn-volver-admin">← MAZOS</button>
+          <label class="nombre-mazo-label" for="nombre-mazo-editor">NOMBRE</label>
           <input id="nombre-mazo-editor" type="text" maxlength="36" placeholder="Nombre del mazo">
-        </div>
-        <div class="panel-heading">
-          <div><span class="sobrelinea">TU ESTRATEGIA COMIENZA AQUÍ</span><h1>CREACIÓN DE <em>MAZO</em></h1></div>
-          <div class="contador-mazo"><strong id="contador-mazo">0</strong><span>CARTAS</span></div>
+          <span id="titulo-editor-mazo" class="editor-titulo-oculto">EDITANDO MAZO</span>
+          <div class="contador-mazo"><strong id="contador-mazo">0</strong><span>/ 40</span></div>
         </div>
         <div class="mazo-progreso"><div id="mazo-progreso-barra"></div></div>
-        <div class="mazo-estado" id="mazo-estado">AGREGÁ 40 CARTAS PARA DESBLOQUEAR EL COMBATE</div>
+        <div class="mazo-estado" id="mazo-estado" aria-live="polite">0 / 40</div>
         <div class="mazo-construccion" id="mazo-construccion">
           <div class="mazo-vacio" id="mazo-vacio"><span>✧</span><strong>Tu mazo está esperando</strong><small>Seleccioná cartas del catálogo para comenzar a construirlo</small></div>
           <div class="mazo-construccion-grid" id="mazo-construccion-grid"></div>
         </div>
-        <div class="catalogo-heading"><div><span class="sobrelinea">ARCHIVO DE GUERREROS</span><h2>CATÁLOGO DE CARTAS</h2></div><span class="catalogo-ayuda">CLICK PARA AGREGAR · MANTENER PRESIONADO PARA VER</span></div>
+        <div class="catalogo-heading"><h2>CATÁLOGO</h2><span id="catalogo-resultados" class="catalogo-resultados" aria-live="polite">CARGANDO...</span></div>
         <section class="catalogo-filtros" aria-label="Filtros y orden del catálogo">
           <label class="filtro-campo">ESFERA
             <select id="filtro-esfera"><option value="">TODAS</option></select>
@@ -88,8 +89,8 @@
           <label class="filtro-campo">TIPO DE CARTA
             <select id="filtro-tipo"><option value="">TODOS</option></select>
           </label>
-          <label class="filtro-campo">NÚMERO / ID
-            <input id="filtro-numero" type="number" min="0" step="1" inputmode="numeric" placeholder="Buscar ID">
+          <label class="filtro-campo filtro-buscar-campo">BUSCAR
+            <input id="filtro-buscar" type="search" inputmode="search" autocomplete="off" placeholder="Nombre o descripción...">
           </label>
           <label class="filtro-campo">ORDENAR POR
             <select id="orden-campo">
@@ -107,7 +108,7 @@
             </select>
           </label>
           <button type="button" id="limpiar-filtros" class="btn-limpiar-filtros">LIMPIAR</button>
-          <span id="catalogo-resultados" class="catalogo-resultados" aria-live="polite">CARGANDO CARTAS...</span>
+
         </section>
         <div class="constructor-catalogo" id="constructor-catalogo"><div class="catalogo-cargando">CARGANDO ARCHIVO...</div></div>
       </section>

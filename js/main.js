@@ -39,7 +39,7 @@ function iniciarJuego() {
     constructorCatalogo: document.getElementById("constructor-catalogo"),
     filtroEsfera: document.getElementById("filtro-esfera"),
     filtroTipo: document.getElementById("filtro-tipo"),
-    filtroNumero: document.getElementById("filtro-numero"),
+    filtroBuscar: document.getElementById("filtro-buscar"),
     ordenCampo: document.getElementById("orden-campo"),
     ordenDireccion: document.getElementById("orden-direccion"),
     limpiarFiltros: document.getElementById("limpiar-filtros"),

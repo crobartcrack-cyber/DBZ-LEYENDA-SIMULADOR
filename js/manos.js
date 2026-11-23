@@ -47,6 +47,7 @@ export function crearSistemaManos(
 
     let temporizadorVisor = null;
     let visorPorPulsacionLarga = false;
+    let inicioPulsacion = null;
     const cancelarPulsacionLarga = () => {
       if (temporizadorVisor !== null) clearTimeout(temporizadorVisor);
       temporizadorVisor = null;
@@ -63,6 +64,20 @@ export function crearSistemaManos(
       // En descarte, el click lo procesa el selector global; no debe abrir el visor.
       if (document.body.dataset.discardMode === "true") return;
       e.stopPropagation();
+      // En pantallas táctiles se puede jugar sin arrastrar: un toque selecciona
+      // la carta y luego se toca una casilla. La pulsación larga abre el visor.
+      if (window.matchMedia?.("(pointer: coarse)").matches) {
+        const yaSeleccionada = estadoJuego.seleccionMano.lado === lado &&
+          estadoJuego.seleccionMano.instanciaId === instancia.instanciaId;
+        if (yaSeleccionada) {
+          estadoJuego.seleccionMano = { lado: null, instanciaId: null };
+        } else {
+          estadoJuego.seleccionMano = { lado, instanciaId: instancia.instanciaId };
+        }
+        renderizarMano("jugador");
+        renderizarMano("rival");
+        return;
+      }
       abrirVisorCarta(instancia.carta);
     });
 
@@ -72,9 +87,12 @@ export function crearSistemaManos(
       cardEl.setPointerCapture?.(e.pointerId);
       visorPorPulsacionLarga = false;
       cancelarPulsacionLarga();
-      // En partida normal, la ampliación se reserva para el click.
-      // La pulsación larga sigue habilitada únicamente en la fase de descarte.
-      if (document.body.dataset.discardMode !== "true") return;
+      inicioPulsacion = { x: e.clientX, y: e.clientY };
+      // En móvil, mantener pulsada abre el visor; un toque normal selecciona.
+      // Durante el descarte se conserva el mismo gesto en cualquier dispositivo.
+      const permitirVisorLargo = document.body.dataset.discardMode === "true" ||
+        window.matchMedia?.("(pointer: coarse)").matches;
+      if (!permitirVisorLargo) return;
       temporizadorVisor = setTimeout(() => {
         visorPorPulsacionLarga = true;
         cardEl.dataset.skipClick = "1";
@@ -82,9 +100,16 @@ export function crearSistemaManos(
         abrirVisorCarta(instancia.carta);
       }, 430);
     });
+    cardEl.addEventListener("pointermove", (e) => {
+      if (!temporizadorVisor || !inicioPulsacion) return;
+      if (Math.hypot(e.clientX - inicioPulsacion.x, e.clientY - inicioPulsacion.y) > 11) {
+        cancelarPulsacionLarga();
+      }
+    });
     ["pointerup", "pointercancel", "pointerleave"].forEach((tipo) => {
       cardEl.addEventListener(tipo, () => {
         cancelarPulsacionLarga();
+        inicioPulsacion = null;
         if (visorPorPulsacionLarga) {
           // El click sintético posterior al pointerup no debe seleccionar ni abrir otra vez.
           cardEl.dataset.skipClick = "1";

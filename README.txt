@@ -10,7 +10,7 @@ CATÁLOGO
 FILTROS DEL CONSTRUCTOR
 - ESFERA: filtra por el valor ESFERA (1 a 7).
 - TIPO DE CARTA: filtra por ATAQUE, HABILIDAD, MODIFICADORA, INSTANTANEA o ESFERAS DEL DRAGON. Las cartas con varios tipos aparecen al seleccionar cualquiera de sus tipos.
-- NUMERO / ID: busca por coincidencia numérica en el ID.
+- BUSCAR: busca texto parcial en NOMBRE y TEXTO (descripción), sin distinguir mayúsculas ni acentos.
 - ORDENAR POR: orden del catálogo, ID, ATAQUE, DEFENSA o ESFERA.
 - ORDEN: menor a mayor o mayor a menor.
 - Los filtros se pueden combinar. LIMPIAR restablece todos los controles.
@@ -45,3 +45,13 @@ ACTUALIZACION DE INTERFAZ (23-11-2026)
 - El estado del interruptor se sincroniza con los cambios de pantalla completa del navegador y muestra avisos si la función no está disponible o el navegador la rechaza.
 - Se corrigió la vista del editor de mazos: al abrir un mazo se oculta el panel de selección de modo de juego y queda visible el constructor con su catálogo.
 - Al volver desde el editor se restaura la pantalla de administración de mazos.
+
+
+ACTUALIZACION DE INTERFAZ (23-11-2026 · LIMPIEZA DEL CONSTRUCTOR)
+- Se simplificó la pantalla de creación: se quitaron títulos y ayudas redundantes y se compactó la barra superior.
+- El mazo construido conserva una zona propia y desplazable, con contador y progreso compactos.
+- El catálogo ocupa el espacio restante y es la zona visual principal.
+- Los filtros se compactaron para dejar más superficie a las cartas; se conservan esfera, tipo, orden y dirección.
+- El campo BUSCAR reemplaza la búsqueda por ID y consulta el nombre y la descripción de la carta. La búsqueda ignora mayúsculas y acentos.
+- El diseño ajusta la distribución en escritorio, móvil vertical y móvil horizontal.
+- Se verificó que el HTML y el código no conservan referencias al antiguo filtro por número/ID.

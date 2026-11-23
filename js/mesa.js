@@ -339,8 +339,11 @@ export function crearSistemaMesa(
         if (document.body.dataset.discardMode === "true") return;
         const cartaEl = e.target.closest(".carta-mano");
         if (!cartaEl || e.button !== 0) return;
-        // Evita selección/gestos nativos; el drag de juego se controla aquí.
-        e.preventDefault();
+        // En mouse evitamos selección accidental. En touch, touch-action:none
+        // en la carta controla el gesto y conserva el click sintético del visor.
+        if (e.pointerType === "mouse") e.preventDefault();
+        // manos.js captura el puntero en la propia carta; así el drag sigue
+        // llegando a esta mano y los listeners de pointerup de la carta funcionan.
         const instanciaId = cartaEl.dataset.instanciaId;
         const instancia = estadoJuego.manos[lado].find((item) => item.instanciaId === instanciaId);
         if (!instancia) return;
@@ -377,9 +380,9 @@ export function crearSistemaMesa(
         if (slot && esDestinoValido(lado, slot.dataset.slot, inicio.instancia)) slot.classList.add("hover-arrastre");
       });
 
-      const finalizarArrastre = (e) => {
+      const finalizarArrastre = (e, cancelado = false) => {
         if (!inicio || inicio.pointerId !== e.pointerId) return;
-        if (arrastre) {
+        if (arrastre && !cancelado) {
           const destino = document.elementFromPoint(e.clientX, e.clientY)?.closest(`.slot-carta[data-lado="${lado}"]`);
           inicio.cartaEl.dataset.skipClick = "1";
           if (destino && esDestinoValido(lado, destino.dataset.slot, inicio.instancia)) {
@@ -407,14 +410,21 @@ export function crearSistemaMesa(
           document.body.classList.remove("modo-arrastre");
           ghost?.remove();
           document.querySelectorAll(".slot-carta").forEach((slot) => slot.classList.remove("slot-destino-posible", "hover-arrastre"));
+        } else if (arrastre && cancelado) {
+          // Limpieza completa cuando el sistema interrumpe el gesto táctil.
+          inicio.cartaEl.classList.remove("arrastrando-origen");
+          document.body.classList.remove("modo-arrastre");
+          ghost?.remove();
+          document.querySelectorAll(".slot-carta").forEach((slot) => slot.classList.remove("slot-destino-posible", "hover-arrastre"));
         }
         inicio = null;
         arrastre = false;
         ghost = null;
       };
 
-      manoEl.addEventListener("pointerup", finalizarArrastre);
-      manoEl.addEventListener("pointercancel", finalizarArrastre);
+      manoEl.addEventListener("pointerup", (e) => finalizarArrastre(e, false));
+      // Un gesto interrumpido por el sistema operativo no debe jugar la carta.
+      manoEl.addEventListener("pointercancel", (e) => finalizarArrastre(e, true));
     }
   }
 
