@@ -9,11 +9,11 @@ CATÁLOGO
 
 FILTROS DEL CONSTRUCTOR
 - ESFERA: filtra por el valor ESFERA (1 a 7).
-- TIPO DE CARTA: selección múltiple por ATAQUE, HABILIDAD, MODIFICADORA, INSTANTANEA o ESFERAS DEL DRAGON. Se pueden activar varios tipos; se muestran las cartas que coincidan con al menos uno, incluidas las cartas con TIPO en formato array, sin duplicados.
-- BUSCAR: busca texto parcial en NOMBRE, TEXTO, DESCRIPCION, DESCRIPCION_CORTA y PERSONAJE, sin distinguir mayúsculas ni acentos.
+- TIPO DE CARTA: selección múltiple por ATAQUE, HABILIDAD, MODIFICADORA, INSTANTANEA o ESFERAS DEL DRAGON. Si se activan varios tipos, la carta debe contener todos los tipos seleccionados (coincidencia AND), incluidas las cartas con TIPO en formato array.
+- BUSCAR: está dentro de MÁS FILTROS y busca texto parcial en NOMBRE, TEXTO, DESCRIPCION, DESCRIPCION_CORTA y PERSONAJE, sin distinguir mayúsculas ni acentos.
 - ORDENAR POR: orden del catálogo, ID, ATAQUE, DEFENSA o ESFERA.
 - ORDEN: menor a mayor o mayor a menor.
-- Los filtros se pueden combinar. MÁS FILTROS despliega ORDENAR POR, ORDEN y LIMPIAR sin perder selecciones al cerrarse. LIMPIAR restablece todos los controles.
+- Los filtros se pueden combinar. MÁS FILTROS despliega BUSCAR, ORDENAR POR, ORDEN y LIMPIAR sin perder selecciones al cerrarse. LIMPIAR restablece todos los controles.
 - Al ordenar por ataque o defensa, las cartas que no tengan ese atributo quedan al final.
 
 SISTEMA DE MAZOS
@@ -63,3 +63,9 @@ ACTUALIZACION DE INTERFAZ (23-11-2026 · FILTROS Y OPCIONES)
 - TIPO DE CARTA ahora es de selección múltiple: al elegir varios tipos se aplica coincidencia con cualquiera de ellos, incluso si TIPO es un array.
 - En el constructor, ESFERA, TIPO y BUSCAR permanecen a mano; MÁS FILTROS despliega la ordenación y LIMPIAR.
 - Se agregó OPCIONES al menú principal. Comparte los mismos ajustes de sonido y pantalla completa que durante el combate. VOLVER simplemente cierra el panel y regresa a la pantalla que lo abrió; ya no navega al menú principal.
+
+
+ACTUALIZACION DE INTERFAZ (23-11-2026 · FILTROS AND Y ACCESO AL MENÚ)
+- La selección múltiple de TIPO DE CARTA exige que cada carta contenga todos los tipos seleccionados. Por ejemplo, ATAQUE + HABILIDAD solo devuelve cartas que tengan ambos.
+- BUSCAR se trasladó al desplegable MÁS FILTROS, tanto en escritorio como en móvil.
+- OPCIONES del menú principal conserva su ubicación y comportamiento. Durante una partida, el panel de opciones agrega debajo de VOLVER un acceso secundario rojo VOLVER AL MENÚ, que finaliza el combate actual y regresa al menú principal.

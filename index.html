@@ -90,11 +90,11 @@
             <span>TIPO DE CARTA</span>
             <div id="filtro-tipo-opciones" class="filtro-tipo-opciones" aria-label="Tipos de carta"></div>
           </div>
+          <button type="button" id="toggle-mas-filtros" class="btn-mas-filtros" aria-expanded="false" aria-controls="filtros-avanzados">＋ MÁS FILTROS</button>
+          <div id="filtros-avanzados" class="filtros-avanzados oculto">
           <label class="filtro-campo filtro-buscar-campo">BUSCAR
             <input id="filtro-buscar" type="search" inputmode="search" autocomplete="off" placeholder="Nombre, texto o personaje...">
           </label>
-          <button type="button" id="toggle-mas-filtros" class="btn-mas-filtros" aria-expanded="false" aria-controls="filtros-avanzados">＋ MÁS FILTROS</button>
-          <div id="filtros-avanzados" class="filtros-avanzados oculto">
           <label class="filtro-campo">ORDENAR POR
             <select id="orden-campo">
               <option value="catalogo">ORDEN DEL CATÁLOGO</option>
@@ -395,6 +395,9 @@
         <small class="configuracion-ayuda" id="estado-pantalla-completa" aria-live="polite">PANTALLA COMPLETA</small>
         <button type="button" class="configuracion-volver" id="configuracion-volver">
           VOLVER
+        </button>
+        <button type="button" class="configuracion-menu-principal oculto" id="configuracion-menu-principal">
+          VOLVER AL MENÚ
         </button>
       </div>
       <div class="configuracion-ornamento configuracion-ornamento-inferior"><span>◆</span></div>

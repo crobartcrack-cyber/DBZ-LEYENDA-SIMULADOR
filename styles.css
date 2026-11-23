@@ -3388,3 +3388,38 @@ body[data-discard-side="rival"] .fase-descarte-hud { top: 58%; flex-direction: c
 .menu-principal-contenido.editor-mazo-activo .catalogo-filtros .filtro-tipo-opcion input {
   width:11px; min-width:11px; min-height:11px; height:11px; padding:0; margin:0;
 }
+
+/* Acceso secundario al menú principal desde las opciones durante una partida. */
+.configuracion-menu-principal {
+  align-self: center;
+  min-height: 27px;
+  margin: -7px 0 0;
+  padding: 4px 10px;
+  border: 1px solid rgba(196, 74, 74, .42);
+  border-radius: 4px;
+  color: #e78383;
+  background: rgba(112, 25, 35, .16);
+  font: inherit;
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.configuracion-menu-principal:hover {
+  color: #ffd0d0;
+  border-color: rgba(225, 93, 93, .8);
+  background: rgba(145, 35, 45, .28);
+}
+.configuracion-menu-principal:focus-visible { outline: 2px solid #e78383; outline-offset: 3px; }
+.configuracion-menu-principal.oculto { display: none !important; }
+
+/* El buscador forma parte del panel desplegable MÁS FILTROS. */
+.menu-principal-contenido.editor-mazo-activo .filtros-avanzados:not(.oculto) .filtro-buscar-campo {
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .menu-principal-contenido.editor-mazo-activo .filtros-avanzados:not(.oculto) .filtro-buscar-campo {
+    grid-column: 1 / -1;
+  }
+}
