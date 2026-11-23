@@ -9,11 +9,11 @@ CATÁLOGO
 
 FILTROS DEL CONSTRUCTOR
 - ESFERA: filtra por el valor ESFERA (1 a 7).
-- TIPO DE CARTA: filtra por ATAQUE, HABILIDAD, MODIFICADORA, INSTANTANEA o ESFERAS DEL DRAGON. Las cartas con varios tipos aparecen al seleccionar cualquiera de sus tipos.
-- BUSCAR: busca texto parcial en NOMBRE y TEXTO (descripción), sin distinguir mayúsculas ni acentos.
+- TIPO DE CARTA: selección múltiple por ATAQUE, HABILIDAD, MODIFICADORA, INSTANTANEA o ESFERAS DEL DRAGON. Se pueden activar varios tipos; se muestran las cartas que coincidan con al menos uno, incluidas las cartas con TIPO en formato array, sin duplicados.
+- BUSCAR: busca texto parcial en NOMBRE, TEXTO, DESCRIPCION, DESCRIPCION_CORTA y PERSONAJE, sin distinguir mayúsculas ni acentos.
 - ORDENAR POR: orden del catálogo, ID, ATAQUE, DEFENSA o ESFERA.
 - ORDEN: menor a mayor o mayor a menor.
-- Los filtros se pueden combinar. LIMPIAR restablece todos los controles.
+- Los filtros se pueden combinar. MÁS FILTROS despliega ORDENAR POR, ORDEN y LIMPIAR sin perder selecciones al cerrarse. LIMPIAR restablece todos los controles.
 - Al ordenar por ataque o defensa, las cartas que no tengan ese atributo quedan al final.
 
 SISTEMA DE MAZOS
@@ -55,3 +55,11 @@ ACTUALIZACION DE INTERFAZ (23-11-2026 · LIMPIEZA DEL CONSTRUCTOR)
 - El campo BUSCAR reemplaza la búsqueda por ID y consulta el nombre y la descripción de la carta. La búsqueda ignora mayúsculas y acentos.
 - El diseño ajusta la distribución en escritorio, móvil vertical y móvil horizontal.
 - Se verificó que el HTML y el código no conservan referencias al antiguo filtro por número/ID.
+
+
+ACTUALIZACION DE INTERFAZ (23-11-2026 · FILTROS Y OPCIONES)
+- ORDENAR POR ahora utiliza correctamente los campos JSON ID, ATAQUE, DEFENSA y ESFERA; la dirección ascendente/descendente se aplica también al orden del catálogo. Los valores ausentes quedan al final.
+- BUSCAR incluye PERSONAJE además del nombre y los textos/descripciones de la carta.
+- TIPO DE CARTA ahora es de selección múltiple: al elegir varios tipos se aplica coincidencia con cualquiera de ellos, incluso si TIPO es un array.
+- En el constructor, ESFERA, TIPO y BUSCAR permanecen a mano; MÁS FILTROS despliega la ordenación y LIMPIAR.
+- Se agregó OPCIONES al menú principal. Comparte los mismos ajustes de sonido y pantalla completa que durante el combate. VOLVER simplemente cierra el panel y regresa a la pantalla que lo abrió; ya no navega al menú principal.

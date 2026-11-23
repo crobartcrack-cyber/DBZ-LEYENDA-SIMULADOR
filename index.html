@@ -18,7 +18,7 @@
     <header class="menu-topbar">
       <div class="marca-juego"><span class="marca-orbe">Z</span><div><small>DRAGON BALL</small><strong>LEYENDA</strong></div></div>
       <div class="menu-topbar-centro">PREPARÁ TU COMBATE <span>Z</span> FORJÁ TU DESTINO</div>
-      <div class="menu-version">LOCAL BATTLE SYSTEM</div>
+      <div class="menu-topbar-acciones"><span class="menu-version">LOCAL BATTLE SYSTEM</span><button type="button" id="btn-opciones-menu" class="btn-opciones-menu" aria-haspopup="dialog" aria-expanded="false">⚙ OPCIONES</button></div>
     </header>
 
     <section class="administrador-mazos" id="administrador-mazos">
@@ -86,12 +86,15 @@
           <label class="filtro-campo">ESFERA
             <select id="filtro-esfera"><option value="">TODAS</option></select>
           </label>
-          <label class="filtro-campo">TIPO DE CARTA
-            <select id="filtro-tipo"><option value="">TODOS</option></select>
-          </label>
+          <div class="filtro-campo filtro-tipo-campo">
+            <span>TIPO DE CARTA</span>
+            <div id="filtro-tipo-opciones" class="filtro-tipo-opciones" aria-label="Tipos de carta"></div>
+          </div>
           <label class="filtro-campo filtro-buscar-campo">BUSCAR
-            <input id="filtro-buscar" type="search" inputmode="search" autocomplete="off" placeholder="Nombre o descripción...">
+            <input id="filtro-buscar" type="search" inputmode="search" autocomplete="off" placeholder="Nombre, texto o personaje...">
           </label>
+          <button type="button" id="toggle-mas-filtros" class="btn-mas-filtros" aria-expanded="false" aria-controls="filtros-avanzados">＋ MÁS FILTROS</button>
+          <div id="filtros-avanzados" class="filtros-avanzados oculto">
           <label class="filtro-campo">ORDENAR POR
             <select id="orden-campo">
               <option value="catalogo">ORDEN DEL CATÁLOGO</option>
@@ -108,7 +111,7 @@
             </select>
           </label>
           <button type="button" id="limpiar-filtros" class="btn-limpiar-filtros">LIMPIAR</button>
-
+          </div>
         </section>
         <div class="constructor-catalogo" id="constructor-catalogo"><div class="catalogo-cargando">CARGANDO ARCHIVO...</div></div>
       </section>
@@ -368,12 +371,13 @@
       <div class="configuracion-ornamento configuracion-ornamento-superior"><span>◆</span></div>
       <header class="configuracion-header">
         <span class="configuracion-sobrelinea">DBZ · LEYENDA</span>
-        <h2 id="configuracion-titulo">CONFIGURACIÓN</h2>
-        <span class="configuracion-subtitulo">AJUSTES DE COMBATE</span>
+        <h2 id="configuracion-titulo">OPCIONES</h2>
+        <span class="configuracion-subtitulo">AJUSTES DEL JUEGO</span>
       </header>
       <div class="configuracion-separador"><i></i><span>✦</span><i></i></div>
       <div class="configuracion-opciones">
         <div class="configuracion-fila">
+          <span class="configuracion-etiqueta">SONIDO</span>
           <span class="configuracion-icono-sonido" aria-hidden="true">🔊</span>
           <button type="button" class="configuracion-toggle" id="toggle-sonido"
             role="switch" aria-checked="true" aria-label="Activar o desactivar sonido">
@@ -381,6 +385,7 @@
           </button>
         </div>
         <div class="configuracion-fila">
+          <span class="configuracion-etiqueta">PANTALLA COMPLETA</span>
           <span class="configuracion-icono-sonido configuracion-icono-pantalla" aria-hidden="true">⛶</span>
           <button type="button" class="configuracion-toggle" id="toggle-pantalla-completa"
             role="switch" aria-checked="false" aria-label="Activar pantalla completa" title="Activar pantalla completa">
@@ -389,7 +394,7 @@
         </div>
         <small class="configuracion-ayuda" id="estado-pantalla-completa" aria-live="polite">PANTALLA COMPLETA</small>
         <button type="button" class="configuracion-volver" id="configuracion-volver">
-          VOLVER AL MENÚ
+          VOLVER
         </button>
       </div>
       <div class="configuracion-ornamento configuracion-ornamento-inferior"><span>◆</span></div>
