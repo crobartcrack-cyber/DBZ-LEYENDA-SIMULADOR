@@ -37,7 +37,26 @@ function iniciarJuego() {
     mazoConstruccionGrid: document.getElementById("mazo-construccion-grid"),
     mazoVacio: document.getElementById("mazo-vacio"),
     constructorCatalogo: document.getElementById("constructor-catalogo"),
+    filtroEsfera: document.getElementById("filtro-esfera"),
+    filtroTipo: document.getElementById("filtro-tipo"),
+    filtroNumero: document.getElementById("filtro-numero"),
+    ordenCampo: document.getElementById("orden-campo"),
+    ordenDireccion: document.getElementById("orden-direccion"),
+    limpiarFiltros: document.getElementById("limpiar-filtros"),
+    catalogoResultados: document.getElementById("catalogo-resultados"),
     requisitoMazo: document.getElementById("requisito-mazo"),
+    administradorMazos: document.getElementById("administrador-mazos"),
+    listaMazos: document.getElementById("lista-mazos"),
+    seleccionMazoJugador: document.getElementById("seleccion-mazo-jugador"),
+    rivalPersonalizado: document.getElementById("rival-personalizado"),
+    seleccionMazoRival: document.getElementById("seleccion-mazo-rival"),
+    rivalSelector: document.getElementById("rival-selector"),
+    editorMazo: document.getElementById("editor-mazo"),
+    nombreMazoEditor: document.getElementById("nombre-mazo-editor"),
+    tituloEditorMazo: document.getElementById("titulo-editor-mazo"),
+    volverAdministrador: document.getElementById("volver-administrador"),
+    crearMazo: document.getElementById("crear-mazo"),
+    adminBtnJugar: document.getElementById("admin-btn-jugar"),
 
     manoJugadorEl: document.getElementById("mano-jugador"),
     manoRivalEl: document.getElementById("mano-rival"),
@@ -396,6 +415,8 @@ function iniciarJuego() {
   const configuracionOverlay = document.getElementById("configuracion-overlay");
   const configuracionBackdrop = document.getElementById("configuracion-backdrop");
   const toggleSonido = document.getElementById("toggle-sonido");
+  const togglePantallaCompleta = document.getElementById("toggle-pantalla-completa");
+  const estadoPantallaCompleta = document.getElementById("estado-pantalla-completa");
   const btnConfiguracionVolver = document.getElementById("configuracion-volver");
 
   function actualizarToggleSonido() {
@@ -406,11 +427,39 @@ function iniciarJuego() {
     icono.textContent = activo ? "🔊" : "🔇";
   }
 
+  function actualizarTogglePantallaCompleta() {
+    const activa = Boolean(document.fullscreenElement);
+    togglePantallaCompleta.setAttribute("aria-checked", String(activa));
+    togglePantallaCompleta.setAttribute("aria-label", activa ? "Salir de pantalla completa" : "Activar pantalla completa");
+    togglePantallaCompleta.title = activa ? "Salir de pantalla completa" : "Activar pantalla completa";
+    estadoPantallaCompleta.textContent = activa ? "PANTALLA COMPLETA ACTIVADA" : "PANTALLA COMPLETA DESACTIVADA";
+  }
+
+  async function alternarPantallaCompleta() {
+    if (!document.fullscreenEnabled || !document.documentElement.requestFullscreen) {
+      estadoPantallaCompleta.textContent = "NO DISPONIBLE EN ESTE NAVEGADOR";
+      return;
+    }
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (error) {
+      console.warn("No se pudo cambiar el modo de pantalla completa:", error);
+      estadoPantallaCompleta.textContent = "EL NAVEGADOR NO PERMITIÓ EL CAMBIO";
+      return;
+    }
+    actualizarTogglePantallaCompleta();
+  }
+
   function abrirConfiguracion() {
     if (configuracionOverlay.classList.contains("oculto")) {
       configuracionOverlay.classList.remove("oculto");
       btnConfiguracion.setAttribute("aria-expanded", "true");
       actualizarToggleSonido();
+      actualizarTogglePantallaCompleta();
       sonidos.menuAbrir?.();
       toggleSonido.focus();
     }
@@ -433,6 +482,8 @@ function iniciarJuego() {
     actualizarToggleSonido();
     if (activar) sonidos.menuAbrir?.();
   });
+  togglePantallaCompleta.addEventListener("click", alternarPantallaCompleta);
+  document.addEventListener("fullscreenchange", actualizarTogglePantallaCompleta);
   btnConfiguracionVolver.addEventListener("click", async () => {
     cerrarConfiguracion();
     await volverAlMenuPrincipal();
@@ -453,6 +504,7 @@ function iniciarJuego() {
   // --------------------------------
 
   mazos.cargarCatalogo();
+  mazos.renderizarAdministrador();
   manos.renderizarMano("jugador");
   manos.renderizarMano("rival");
 

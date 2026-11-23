@@ -1811,6 +1811,16 @@ body[data-discard-side="rival"] .fase-descarte-hud { top: 58%; flex-direction: c
   background: linear-gradient(145deg, #fff4d4, #e4b85b);
   box-shadow: 0 0 9px #ffdc8a99, 0 1px 4px #000b;
 }
+.configuracion-icono-pantalla { font-size: 1.55rem; font-weight: 700; }
+.configuracion-ayuda {
+  display: block;
+  margin: -.55rem 0 .15rem;
+  color: #a99cb9;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-align: center;
+}
 .configuracion-volver {
   width: 100%;
   min-height: 42px;
@@ -2606,5 +2616,207 @@ body[data-discard-side="rival"] .fase-descarte-hud { top: 58%; flex-direction: c
     width: min(100%, 48px);
     height: auto;
     aspect-ratio: 2.5 / 3.5;
+  }
+}
+
+
+/* =========================================================
+   ADMINISTRADOR DE MAZOS · PERSISTENCIA Y CONFIGURACIÓN
+   ========================================================= */
+.administrador-mazos {
+  flex:1; min-height:0; overflow:auto; padding:clamp(16px,2.5vw,34px) 0;
+  display:flex; flex-direction:column; gap:clamp(15px,2vh,24px);
+  scrollbar-color:#76608d #171024; scrollbar-width:thin;
+}
+.admin-mazos-hero {
+  display:flex; align-items:center; justify-content:space-between; gap:18px;
+  padding:clamp(18px,2.5vw,30px); border:1px solid rgba(194,174,232,.24); border-radius:15px;
+  background:radial-gradient(ellipse at 80% 0%,#00d9f51b,transparent 38%),linear-gradient(135deg,#241338ed,#0d1022ed);
+  box-shadow:0 18px 55px #0006,inset 0 1px #ffffff0d;
+}
+.admin-mazos-hero h1 { color:#fff; font-size:clamp(25px,3.4vw,43px); letter-spacing:.07em; line-height:1; }
+.admin-mazos-hero h1 em { color:#ffca48; font-style:normal; text-shadow:0 0 20px #ffbe0b55; }
+.admin-mazos-hero p { color:#a99db9; font-size:12px; margin-top:9px; }
+.admin-mazos-emblema { display:grid; place-items:center; width:clamp(58px,8vw,92px); aspect-ratio:1; flex-shrink:0; border:1px solid #ffbe0b88; border-radius:50%; color:#ffcf55; font-size:clamp(28px,4vw,48px); font-weight:1000; text-shadow:0 0 18px #ffbe0b99; box-shadow:0 0 35px #ffbe0b20,inset 0 0 22px #ffbe0b18; }
+.admin-configuracion-combate { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.admin-config-card { min-width:0; padding:18px; border:1px solid #c2aee833; border-radius:12px; background:linear-gradient(145deg,#1e1330ed,#0c0c1bed); box-shadow:0 10px 30px #0004; }
+.admin-config-card>label,.rival-selector>label { display:block; color:#f4e9ff; font-size:11px; font-weight:900; letter-spacing:.12em; margin:8px 0; }
+.admin-config-card>small { display:block; color:#8e829f; font-size:10px; margin-top:9px; }
+.admin-select { width:100%; min-height:42px; padding:9px 36px 9px 12px; border:1px solid #a88ac766; border-radius:7px; color:#f6edff; background:#100b1d; font-family:inherit; font-size:11px; font-weight:700; letter-spacing:.04em; }
+.admin-select:focus,.editor-mazo-toolbar input:focus { outline:2px solid #00d9f5; outline-offset:2px; }
+.admin-rival-titulo { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; }
+.admin-switch-label { display:flex; align-items:center; gap:9px; color:#f4e9ff; font-size:10px; cursor:pointer; }
+.admin-switch-label input { position:absolute; opacity:0; pointer-events:none; }
+.admin-switch { width:34px; height:19px; border-radius:20px; background:#51445f; border:1px solid #9b86b5; position:relative; transition:.2s; }
+.admin-switch::after { content:""; position:absolute; width:13px; height:13px; top:2px; left:2px; border-radius:50%; background:#d5c8e4; transition:.2s; }
+.admin-switch-label input:checked+.admin-switch { background:#087e91; border-color:#00d9f5; box-shadow:0 0 12px #00d9f544; }
+.admin-switch-label input:checked+.admin-switch::after { left:17px; background:#fff; }
+.rival-selector { margin-top:10px; }
+.admin-lista-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 2px; }
+.admin-lista-heading h2 { color:#fff; font-size:clamp(17px,2vw,23px); letter-spacing:.1em; }
+.btn-crear-mazo,.btn-volver-admin,.btn-secundario { border:1px solid #ffbe0b77; border-radius:7px; color:#ffda7b; background:#ffbe0b12; font-size:10px; font-weight:900; letter-spacing:.08em; padding:10px 13px; cursor:pointer; transition:.18s; }
+.btn-crear-mazo { background:linear-gradient(110deg,#ffe08a,#f3a914); color:#261908; border-color:#ffe28a; }
+.btn-crear-mazo span { font-size:17px; vertical-align:-2px; margin-right:5px; }
+.btn-crear-mazo:hover,.btn-secundario:hover,.btn-volver-admin:hover { filter:brightness(1.18); transform:translateY(-1px); }
+.lista-mazos { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr)); gap:11px; }
+.mazo-guardado-card { min-width:0; display:flex; flex-direction:column; justify-content:space-between; gap:15px; padding:16px; border:1px solid #b8a0d333; border-radius:11px; background:linear-gradient(145deg,#211631ed,#0d0d1eed); box-shadow:0 8px 25px #0004; }
+.mazo-guardado-info { display:flex; flex-direction:column; gap:7px; min-width:0; }
+.mazo-guardado-info strong { color:#fff; font-size:14px; overflow-wrap:anywhere; }
+.mazo-guardado-info small { color:#9a8eaa; font-size:9px; font-weight:800; letter-spacing:.1em; }
+.mazo-guardado-acciones { display:flex; flex-wrap:wrap; gap:7px; }
+.btn-secundario { padding:8px 10px; font-size:9px; }
+.btn-eliminar-mazo { color:#ff9b9b; border-color:#ff777755; background:#ff44440d; }
+.btn-secundario:disabled { opacity:.3; cursor:not-allowed; }
+.admin-acciones-finales { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:auto; padding-top:14px; border-top:1px solid #ffffff19; }
+.admin-acciones-finales>span { color:#7f748f; font-size:8px; font-weight:900; letter-spacing:.12em; }
+.admin-acciones-finales .btn-jugar { max-width:260px; }
+.editor-mazo-toolbar { display:grid; grid-template-columns:auto minmax(140px,1fr) minmax(130px,.7fr) minmax(150px,1fr); align-items:center; gap:12px; padding:0 0 13px; border-bottom:1px solid #ffffff1c; }
+.editor-mazo-toolbar>div { min-width:0; display:flex; flex-direction:column; gap:3px; }
+.editor-mazo-toolbar>div strong { color:#fff; font-size:11px; letter-spacing:.08em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.editor-mazo-toolbar>label { color:#a99db9; font-size:9px; font-weight:900; letter-spacing:.1em; }
+.editor-mazo-toolbar input { min-width:0; width:100%; padding:9px 10px; border:1px solid #a88ac766; border-radius:6px; color:#fff; background:#100b1d; font-size:11px; }
+.menu-principal-contenido.editor-mazo-activo { grid-template-columns:minmax(0,1fr); }
+.menu-principal-contenido.editor-mazo-activo .constructor-panel { grid-column:1; }
+.menu-principal-contenido.editor-mazo-activo .modos-panel { display:none !important; }
+@media (max-width:850px) {
+  .administrador-mazos { flex:none; overflow:visible; }
+  .admin-configuracion-combate { grid-template-columns:1fr; }
+  .admin-acciones-finales { align-items:stretch; flex-direction:column; }
+  .admin-acciones-finales .btn-jugar { max-width:none; }
+  .editor-mazo-toolbar { grid-template-columns:1fr 1fr; }
+  .editor-mazo-toolbar .btn-volver-admin { grid-column:1/-1; justify-self:start; }
+}
+@media (max-width:480px) {
+  .admin-mazos-hero { padding:16px; }
+  .admin-mazos-hero p { max-width:235px; font-size:10px; line-height:1.5; }
+  .admin-config-card { padding:14px; }
+  .admin-lista-heading { align-items:flex-end; }
+  .btn-crear-mazo { padding:9px 10px; font-size:9px; white-space:nowrap; }
+  .lista-mazos { grid-template-columns:1fr; }
+  .mazo-guardado-card { padding:13px; }
+  .editor-mazo-toolbar { grid-template-columns:1fr; }
+  .editor-mazo-toolbar .btn-volver-admin { grid-column:auto; }
+  .editor-mazo-toolbar>label { margin-bottom:-7px; }
+}
+
+/* Estado real del guardado local y aviso cuando falta el catálogo original. */
+#estado-guardado { display:block; line-height:1.5; }
+#estado-guardado.estado-guardado-error { color:#ff9b8e; }
+.catalogo-aviso {
+  grid-column:1/-1;
+  margin:0 0 12px;
+  padding:12px 14px;
+  border:1px solid rgba(255,190,11,.42);
+  border-radius:8px;
+  color:#f5d89a;
+  background:rgba(90,55,12,.24);
+  font-size:12px;
+  line-height:1.55;
+}
+@media (max-width:560px) {
+  .catalogo-aviso { font-size:11px; padding:10px; }
+}
+
+.carta-img-sin-recurso { object-fit:contain; background:#18233a; }
+
+
+/* Filtros del catálogo de cartas */
+.catalogo-filtros {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(125px, 1fr)) auto;
+  gap: 10px;
+  align-items: end;
+  margin: 18px 0 14px;
+  padding: 14px;
+  border: 1px solid rgba(242, 190, 74, .25);
+  border-radius: 10px;
+  background: rgba(8, 13, 25, .72);
+}
+.catalogo-filtros .filtro-campo {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+  color: #e8c879;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.catalogo-filtros select,
+.catalogo-filtros input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 9px 10px;
+  border: 1px solid rgba(229, 190, 105, .35);
+  border-radius: 6px;
+  outline: none;
+  color: #f8f1df;
+  background: #111a2a;
+  font: inherit;
+  font-size: .78rem;
+}
+.catalogo-filtros select:focus,
+.catalogo-filtros input:focus {
+  border-color: #f1c66d;
+  box-shadow: 0 0 0 2px rgba(241, 198, 109, .16);
+}
+.catalogo-filtros option {
+  color: #f8f1df;
+  background: #111a2a;
+}
+.btn-limpiar-filtros {
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid rgba(229, 190, 105, .45);
+  border-radius: 6px;
+  color: #f1d99e;
+  background: rgba(229, 190, 105, .08);
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn-limpiar-filtros:hover {
+  background: rgba(229, 190, 105, .18);
+}
+.catalogo-resultados {
+  grid-column: 1 / -1;
+  color: #aebbd0;
+  font-size: .7rem;
+  letter-spacing: .08em;
+}
+.catalogo-sin-resultados {
+  grid-column: 1 / -1;
+  padding: 28px 14px;
+  color: #c8d0dc;
+  text-align: center;
+  font-size: .85rem;
+}
+@media (max-width: 900px) {
+  .catalogo-filtros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .catalogo-resultados {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 480px) {
+  .catalogo-filtros {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px;
+  }
+  .catalogo-filtros .filtro-campo {
+    font-size: .64rem;
+  }
+  .catalogo-filtros select,
+  .catalogo-filtros input {
+    min-height: 40px;
+    padding: 8px 7px;
+    font-size: .7rem;
+  }
+  .btn-limpiar-filtros {
+    min-height: 40px;
   }
 }

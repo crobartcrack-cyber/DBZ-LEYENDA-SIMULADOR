@@ -1,8 +1,9 @@
 const CLAVE = "dbz-leyenda:mazos:v1";
+const VERSION = 1;
 
 export function cargarDatosGuardados() {
   try {
-    const raw = localStorage.getItem(CLAVE);
+    const raw = window.localStorage.getItem(CLAVE);
     if (!raw) return null;
     const datos = JSON.parse(raw);
     if (!datos || !Array.isArray(datos.mazos)) return null;
@@ -15,7 +16,13 @@ export function cargarDatosGuardados() {
 
 export function guardarDatos(datos) {
   try {
-    localStorage.setItem(CLAVE, JSON.stringify(datos));
+    const copia = {
+      version: VERSION,
+      mazos: datos.mazos,
+      configuracion: datos.configuracion,
+      actualizadoEn: new Date().toISOString(),
+    };
+    window.localStorage.setItem(CLAVE, JSON.stringify(copia));
     return true;
   } catch (error) {
     console.warn("No se pudieron guardar los mazos. El almacenamiento puede estar lleno o deshabilitado:", error);

@@ -16,6 +16,15 @@ export const estadoJuego = {
   mazoConstruido: [],
   mazosPartida: { jugador: [], rival: [] },
 
+  // Biblioteca persistente y selección para la próxima partida.
+  mazosGuardados: [],
+  mazoActivoId: null,
+  configuracionMazos: {
+    jugadorId: null,
+    rivalPersonalizado: false,
+    rivalId: null,
+  },
+
   mazoObjetivo: "jugador",
 
   manos: {

@@ -51,7 +51,11 @@ export function crearImagenCarta(id, nombre, claseImg = "carta-img", onCargada =
 
   resolverImagenCarta(id).then((imagenCacheada) => {
     if (!imagenCacheada) {
-      img.remove();
+      // Mantiene una ficha visible y utilizable cuando el ZIP no trae el arte original.
+      const idSeguro = String(id).replace(/[<>&"']/g, "");
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 590"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#18233a"/><stop offset="1" stop-color="#402b16"/></linearGradient></defs><rect width="420" height="590" rx="18" fill="url(#g)"/><rect x="14" y="14" width="392" height="562" rx="12" fill="none" stroke="#e6a93c" stroke-width="4"/><text x="210" y="250" text-anchor="middle" fill="#f7d58b" font-family="Arial,sans-serif" font-size="25" font-weight="700">DBZ · LEYENDA</text><text x="210" y="300" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="21">CARTA ${idSeguro}</text><text x="210" y="350" text-anchor="middle" fill="#c6cbd5" font-family="Arial,sans-serif" font-size="14">ARTE ORIGINAL NO INCLUIDO</text></svg>`;
+      img.classList.add("carta-img-sin-recurso");
+      img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
       if (typeof onSinImagen === "function") onSinImagen();
       return;
     }

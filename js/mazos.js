@@ -1,5 +1,6 @@
 import { estadoJuego, CARTAS_RESPALDO } from "./estado.js";
 import { crearImagenCarta, precargarImagenesCartas } from "./imagenes.js";
+import { cargarDatosGuardados, guardarDatos } from "./persistencia.js";
 
 const MINIMO_MAZO = 40;
 const TAMANO_MANO = 7;
@@ -12,8 +13,242 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
   const gridMazo = elementos.mazoConstruccionGrid;
   const vacio = elementos.mazoVacio;
   const catalogoGrid = elementos.constructorCatalogo;
+  const filtrosCatalogo = {
+    esfera: elementos.filtroEsfera,
+    tipo: elementos.filtroTipo,
+    numero: elementos.filtroNumero,
+    campo: elementos.ordenCampo,
+    direccion: elementos.ordenDireccion,
+    limpiar: elementos.limpiarFiltros,
+    resultados: elementos.catalogoResultados,
+  };
   const btnJugar = elementos.btnJugar;
   const requisito = elementos.requisitoMazo;
+  const admin = {
+    vista: elementos.administradorMazos,
+    lista: elementos.listaMazos,
+    selectJugador: elementos.seleccionMazoJugador,
+    toggleRival: elementos.rivalPersonalizado,
+    selectRival: elementos.seleccionMazoRival,
+    rivalSelector: elementos.rivalSelector,
+    editor: elementos.editorMazo,
+    nombreEditor: elementos.nombreMazoEditor,
+    tituloEditor: elementos.tituloEditorMazo,
+    volver: elementos.volverAdministrador,
+    crear: elementos.crearMazo,
+    jugar: elementos.adminBtnJugar,
+  };
+
+  function crearIdMazo() {
+    return `mazo_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function obtenerMazo(id) {
+    return estadoJuego.mazosGuardados.find((mazo) => mazo.id === id) || null;
+  }
+
+  function guardarBiblioteca() {
+    const guardado = guardarDatos({
+      version: 1,
+      mazos: estadoJuego.mazosGuardados,
+      configuracion: estadoJuego.configuracionMazos,
+    });
+    const indicador = document.getElementById("estado-guardado");
+    if (indicador) {
+      indicador.textContent = guardado
+        ? "✓ CAMBIOS GUARDADOS EN ESTE DISPOSITIVO"
+        : "⚠ NO SE PUDO GUARDAR · REVISÁ EL ESPACIO DEL NAVEGADOR";
+      indicador.classList.toggle("estado-guardado-error", !guardado);
+      indicador.setAttribute("role", guardado ? "status" : "alert");
+    }
+    return guardado;
+  }
+
+  function normalizarBiblioteca() {
+    const datos = cargarDatosGuardados();
+    if (datos?.mazos?.length) {
+      const idsUsados = new Set();
+      estadoJuego.mazosGuardados = datos.mazos
+        .filter((m) => m && Array.isArray(m.cartas))
+        .map((m) => {
+          let id = typeof m.id === "string" && m.id.trim() ? m.id.trim() : crearIdMazo();
+          if (idsUsados.has(id)) id = crearIdMazo();
+          idsUsados.add(id);
+          const cartas = m.cartas
+            .filter((c) => c && typeof c === "object" && !Array.isArray(c) && c.ID !== undefined && c.ID !== null)
+            .map((c) => ({ ...c, ID: c.ID, NOMBRE: String(c.NOMBRE || `CARTA ${c.ID}`) }));
+          return {
+            id,
+            nombre: String(m.nombre || "Mazo sin nombre").trim().slice(0, 36) || "Mazo sin nombre",
+            cartas,
+          };
+        });
+      estadoJuego.configuracionMazos = {
+        jugadorId: datos.configuracion?.jugadorId || estadoJuego.mazosGuardados[0]?.id || null,
+        rivalPersonalizado: Boolean(datos.configuracion?.rivalPersonalizado),
+        rivalId: datos.configuracion?.rivalId || null,
+      };
+    }
+    if (!estadoJuego.mazosGuardados.length) {
+      const id = crearIdMazo();
+      estadoJuego.mazosGuardados = [{ id, nombre: "Mi primer mazo", cartas: [] }];
+      estadoJuego.configuracionMazos = { jugadorId: id, rivalPersonalizado: false, rivalId: id };
+    }
+    if (!obtenerMazo(estadoJuego.configuracionMazos.jugadorId)) {
+      estadoJuego.configuracionMazos.jugadorId = estadoJuego.mazosGuardados[0].id;
+    }
+    if (!obtenerMazo(estadoJuego.configuracionMazos.rivalId)) {
+      estadoJuego.configuracionMazos.rivalId = estadoJuego.configuracionMazos.jugadorId;
+      estadoJuego.configuracionMazos.rivalPersonalizado = false;
+    }
+    estadoJuego.mazoActivoId = estadoJuego.configuracionMazos.jugadorId;
+    estadoJuego.mazoConstruido = obtenerMazo(estadoJuego.mazoActivoId).cartas;
+    guardarBiblioteca();
+  }
+
+  // La biblioteca debe estar lista antes de registrar eventos o renderizar el menú.
+  normalizarBiblioteca();
+
+  function guardarMazoActivo() {
+    const mazo = obtenerMazo(estadoJuego.mazoActivoId);
+    if (mazo) {
+      mazo.cartas = estadoJuego.mazoConstruido;
+      guardarBiblioteca();
+      renderizarAdministrador();
+    }
+  }
+
+  function cambiarMazoActivo(id) {
+    const mazo = obtenerMazo(id);
+    if (!mazo) return false;
+    estadoJuego.mazoActivoId = id;
+    estadoJuego.mazoConstruido = mazo.cartas;
+    renderizarMazoConstruido();
+    return true;
+  }
+
+  function renderizarAdministrador() {
+    if (!admin.lista) return;
+    admin.lista.innerHTML = "";
+    estadoJuego.mazosGuardados.forEach((mazo) => {
+      const fila = document.createElement("article");
+      fila.className = "mazo-guardado-card";
+      const info = document.createElement("div");
+      info.className = "mazo-guardado-info";
+      const nombre = document.createElement("strong");
+      nombre.textContent = mazo.nombre;
+      const detalle = document.createElement("small");
+      detalle.textContent = `${mazo.cartas.length} CARTAS${mazo.id === estadoJuego.configuracionMazos.jugadorId ? " · TU MAZO" : ""}${estadoJuego.configuracionMazos.rivalPersonalizado && mazo.id === estadoJuego.configuracionMazos.rivalId ? " · MAZO RIVAL" : ""}`;
+      info.append(nombre, detalle);
+      const acciones = document.createElement("div");
+      acciones.className = "mazo-guardado-acciones";
+      const editar = document.createElement("button");
+      editar.type = "button"; editar.className = "btn-secundario";
+      editar.textContent = "EDITAR";
+      editar.addEventListener("click", () => abrirEditor(mazo.id));
+      const duplicar = document.createElement("button");
+      duplicar.type = "button"; duplicar.className = "btn-secundario";
+      duplicar.textContent = "DUPLICAR";
+      duplicar.addEventListener("click", () => {
+        const copia = { id: crearIdMazo(), nombre: `${mazo.nombre} (copia)`, cartas: mazo.cartas.map((c) => ({ ...c })) };
+        estadoJuego.mazosGuardados.push(copia); guardarBiblioteca(); renderizarAdministrador();
+        sonidos.menuAbrir?.();
+      });
+      const eliminar = document.createElement("button");
+      eliminar.type = "button"; eliminar.className = "btn-secundario btn-eliminar-mazo";
+      eliminar.textContent = "ELIMINAR";
+      eliminar.disabled = estadoJuego.mazosGuardados.length <= 1;
+      eliminar.addEventListener("click", () => {
+        if (estadoJuego.mazosGuardados.length <= 1 || !window.confirm(`¿Eliminar "${mazo.nombre}"?`)) return;
+        estadoJuego.mazosGuardados = estadoJuego.mazosGuardados.filter((m) => m.id !== mazo.id);
+        if (estadoJuego.configuracionMazos.jugadorId === mazo.id) estadoJuego.configuracionMazos.jugadorId = estadoJuego.mazosGuardados[0].id;
+        if (estadoJuego.configuracionMazos.rivalId === mazo.id) {
+          estadoJuego.configuracionMazos.rivalId = estadoJuego.configuracionMazos.jugadorId;
+          estadoJuego.configuracionMazos.rivalPersonalizado = false;
+        }
+        if (estadoJuego.mazoActivoId === mazo.id) cambiarMazoActivo(estadoJuego.configuracionMazos.jugadorId);
+        guardarBiblioteca(); renderizarAdministrador(); renderizarSelectores(); actualizarProgreso();
+      });
+      acciones.append(editar, duplicar, eliminar);
+      fila.append(info, acciones);
+      admin.lista.appendChild(fila);
+    });
+    renderizarSelectores();
+  }
+
+  function renderizarSelectores() {
+    [admin.selectJugador, admin.selectRival].forEach((select) => {
+      if (!select) return;
+      const actual = select === admin.selectJugador ? estadoJuego.configuracionMazos.jugadorId : estadoJuego.configuracionMazos.rivalId;
+      select.innerHTML = "";
+      estadoJuego.mazosGuardados.forEach((mazo) => {
+        const option = document.createElement("option");
+        option.value = mazo.id; option.textContent = `${mazo.nombre} · ${mazo.cartas.length} cartas`;
+        select.appendChild(option);
+      });
+      select.value = actual;
+    });
+    if (admin.toggleRival) admin.toggleRival.checked = estadoJuego.configuracionMazos.rivalPersonalizado;
+    if (admin.rivalSelector) admin.rivalSelector.classList.toggle("oculto", !estadoJuego.configuracionMazos.rivalPersonalizado);
+  }
+
+  function abrirEditor(id) {
+    cambiarMazoActivo(id);
+    admin.nombreEditor.value = obtenerMazo(id)?.nombre || "";
+    admin.tituloEditor.textContent = `EDITANDO · ${obtenerMazo(id)?.nombre || "MAZO"}`;
+    admin.vista?.classList.add("oculto");
+    admin.editor?.classList.remove("oculto");
+    admin.editor?.classList.add("editor-mazo-activo");
+    actualizarProgreso();
+    sonidos.menuAbrir?.();
+  }
+
+  function volverAlAdministrador() {
+    guardarMazoActivo();
+    admin.editor?.classList.add("oculto");
+    admin.editor?.classList.remove("editor-mazo-activo");
+    admin.vista?.classList.remove("oculto");
+    renderizarAdministrador();
+    sonidos.menuCerrar?.();
+  }
+
+  function crearNuevoMazo() {
+    const numero = estadoJuego.mazosGuardados.length + 1;
+    const mazo = { id: crearIdMazo(), nombre: `Nuevo mazo ${numero}`, cartas: [] };
+    estadoJuego.mazosGuardados.push(mazo);
+    guardarBiblioteca();
+    abrirEditor(mazo.id);
+    renderizarAdministrador();
+  }
+
+  admin.crear?.addEventListener("click", crearNuevoMazo);
+  admin.volver?.addEventListener("click", volverAlAdministrador);
+  admin.nombreEditor?.addEventListener("input", () => {
+    const mazo = obtenerMazo(estadoJuego.mazoActivoId);
+    if (!mazo) return;
+    mazo.nombre = admin.nombreEditor.value.trim() || "Mazo sin nombre";
+    admin.tituloEditor.textContent = `EDITANDO · ${mazo.nombre}`;
+    guardarBiblioteca();
+  });
+  admin.selectJugador?.addEventListener("change", () => {
+    estadoJuego.configuracionMazos.jugadorId = admin.selectJugador.value;
+    if (!estadoJuego.configuracionMazos.rivalPersonalizado) {
+      estadoJuego.configuracionMazos.rivalId = admin.selectJugador.value;
+    }
+    cambiarMazoActivo(admin.selectJugador.value);
+    guardarBiblioteca(); actualizarProgreso(); renderizarAdministrador();
+  });
+  admin.toggleRival?.addEventListener("change", () => {
+    estadoJuego.configuracionMazos.rivalPersonalizado = admin.toggleRival.checked;
+    if (!admin.toggleRival.checked) estadoJuego.configuracionMazos.rivalId = estadoJuego.configuracionMazos.jugadorId;
+    guardarBiblioteca(); renderizarSelectores(); renderizarAdministrador();
+  });
+  admin.selectRival?.addEventListener("change", () => {
+    estadoJuego.configuracionMazos.rivalId = admin.selectRival.value;
+    guardarBiblioteca(); renderizarAdministrador();
+  });
+  admin.jugar?.addEventListener("click", () => elementos.btnJugar?.click());
+
   const panelOverlay = elementos.panelZonaOverlay;
   const panelTitulo = elementos.panelZonaTitulo;
   const panelSubtitulo = elementos.panelZonaSubtitulo;
@@ -37,7 +272,10 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
     estadoJuego.mazoConstruido.sort(compararCartas);
   }
 
+  let catalogoDeRespaldo = false;
+
   async function cargarCatalogo() {
+    catalogoDeRespaldo = false;
     try {
       const resp = await fetch("./data/cartas_exp1.json", { cache: "no-store" });
       if (!resp.ok) throw new Error("No se pudo cargar el catálogo");
@@ -50,21 +288,34 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
       })).filter((c) => String(c.ID).trim() !== "");
     } catch (error) {
       console.warn("Se utilizará el catálogo de respaldo:", error);
+      catalogoDeRespaldo = true;
       estadoJuego.catalogo = CARTAS_RESPALDO.map((c) => ({ ...c }));
     }
     await precargarImagenesCartas(estadoJuego.catalogo);
+    inicializarFiltrosCatalogo();
     renderizarCatalogoConstructor();
     renderizarMazoConstruido();
+    renderizarAdministrador();
+  }
+
+  function tieneMazoValidoInterno() {
+    const jugador = obtenerMazo(estadoJuego.configuracionMazos.jugadorId);
+    const rival = obtenerMazo(estadoJuego.configuracionMazos.rivalId);
+    return (jugador?.cartas.length || 0) >= MINIMO_MAZO
+      && (!estadoJuego.configuracionMazos.rivalPersonalizado || (rival?.cartas.length || 0) >= MINIMO_MAZO);
   }
 
   function actualizarProgreso() {
     const total = estadoJuego.mazoConstruido.length;
-    const listo = total >= MINIMO_MAZO;
+    const listo = tieneMazoValidoInterno();
     contador.textContent = total;
     barra.style.width = `${Math.min(100, total / MINIMO_MAZO * 100)}%`;
-    estado.textContent = listo ? "✦ MAZO COMPLETO · LISTO PARA EL COMBATE" : `AGREGÁ ${MINIMO_MAZO - total} CARTAS MÁS PARA DESBLOQUEAR EL COMBATE`;
+    const rival = obtenerMazo(estadoJuego.configuracionMazos.rivalId);
+    const rivalInvalido = estadoJuego.configuracionMazos.rivalPersonalizado && (rival?.cartas.length || 0) < MINIMO_MAZO;
+    estado.textContent = listo ? "✦ MAZOS COMPLETOS · LISTOS PARA EL COMBATE" : rivalInvalido ? `EL MAZO DEL RIVAL NECESITA ${Math.max(0, MINIMO_MAZO - (rival?.cartas.length || 0))} CARTAS MÁS` : `AGREGÁ ${Math.max(0, MINIMO_MAZO - total)} CARTAS MÁS PARA DESBLOQUEAR EL COMBATE`;
     estado.classList.toggle("mazo-listo", listo);
     btnJugar.disabled = !listo;
+    if (admin.jugar) admin.jugar.disabled = !listo;
     requisito.textContent = listo ? "TU MAZO ESTÁ LISTO. ¡QUE COMIENCE EL COMBATE!" : `NECESITÁS AL MENOS ${MINIMO_MAZO} CARTAS`;
     requisito.classList.toggle("requisito-listo", listo);
     vacio.classList.toggle("oculto", total > 0);
@@ -139,6 +390,7 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
     estadoJuego.mazoConstruido.push(nuevaCarta);
     ordenarMazoConstruido();
     renderizarMazoConstruido();
+    guardarBiblioteca();
     const destino = gridMazo.children[estadoJuego.mazoConstruido.indexOf(nuevaCarta)];
     animarCarta(origen, destino);
     sonidos.colocar?.();
@@ -150,6 +402,7 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
     ordenarMazoConstruido();
     sonidos.retirar?.();
     renderizarMazoConstruido();
+    guardarBiblioteca();
   }
 
   function renderizarMazoConstruido() {
@@ -173,9 +426,125 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
     actualizarProgreso();
   }
 
+  function tiposNormalizados(carta) {
+    const raw = Array.isArray(carta?.TIPO) ? carta.TIPO : [carta?.TIPO ?? ""];
+    const tipos = new Set();
+    raw.forEach((valor) => {
+      const texto = String(valor).trim().toUpperCase();
+      if (!texto) return;
+      if (texto === "ESFERAS DEL DRAGON" || texto === "ESFERA DEL DRAGON") {
+        tipos.add("ESFERAS DEL DRAGON");
+        return;
+      }
+      texto.split(/[\\s,/+]+/).filter(Boolean).forEach((parte) => {
+        if (parte === "INSTANTANEAS") tipos.add("INSTANTANEA");
+        else if (parte === "MODIFICADORAS") tipos.add("MODIFICADORA");
+        else if (parte === "INSTANTANEA") tipos.add("INSTANTANEA");
+        else if (parte === "MODIFICADORA") tipos.add("MODIFICADORA");
+        else tipos.add(parte);
+      });
+    });
+    return [...tipos];
+  }
+
+  function valorNumerico(carta, campo) {
+    const valor = Number(carta?.[campo]);
+    return carta?.[campo] !== undefined && carta?.[campo] !== null && carta?.[campo] !== "" && Number.isFinite(valor)
+      ? valor
+      : null;
+  }
+
+  function inicializarFiltrosCatalogo() {
+    if (filtrosCatalogo.esfera) {
+      const esferas = [...new Set(estadoJuego.catalogo.map((c) => String(c.ESFERA ?? "")).filter(Boolean))]
+        .sort((a, b) => numeroOrden(a) - numeroOrden(b));
+      filtrosCatalogo.esfera.innerHTML = '<option value="">TODAS</option>';
+      esferas.forEach((esfera) => {
+        const option = document.createElement("option");
+        option.value = esfera;
+        option.textContent = `ESFERA ${esfera}`;
+        filtrosCatalogo.esfera.appendChild(option);
+      });
+    }
+    if (filtrosCatalogo.tipo) {
+      const tipos = [...new Set(estadoJuego.catalogo.flatMap(tiposNormalizados))]
+        .sort((a, b) => a.localeCompare(b, "es"));
+      filtrosCatalogo.tipo.innerHTML = '<option value="">TODOS</option>';
+      tipos.forEach((tipo) => {
+        const option = document.createElement("option");
+        option.value = tipo;
+        option.textContent = tipo;
+        filtrosCatalogo.tipo.appendChild(option);
+      });
+    }
+  }
+
+  function obtenerCartasFiltradas() {
+    const esfera = filtrosCatalogo.esfera?.value || "";
+    const tipo = filtrosCatalogo.tipo?.value || "";
+    const numero = filtrosCatalogo.numero?.value.trim() || "";
+    const campo = filtrosCatalogo.campo?.value || "catalogo";
+    const direccion = filtrosCatalogo.direccion?.value === "desc" ? -1 : 1;
+
+    const cartas = estadoJuego.catalogo.filter((carta) => {
+      if (esfera && String(carta.ESFERA ?? "") !== esfera) return false;
+      if (tipo && !tiposNormalizados(carta).includes(tipo)) return false;
+      if (numero && !String(carta.ID ?? "").includes(numero)) return false;
+      return true;
+    });
+
+    if (campo !== "catalogo") {
+      cartas.sort((a, b) => {
+        const av = valorNumerico(a, campo);
+        const bv = valorNumerico(b, campo);
+        // Las cartas sin valor de ataque/defensa quedan siempre al final.
+        if (av === null && bv === null) return numeroOrden(a.ID) - numeroOrden(b.ID);
+        if (av === null) return 1;
+        if (bv === null) return -1;
+        return (av - bv) * direccion || (numeroOrden(a.ID) - numeroOrden(b.ID)) * direccion;
+      });
+    } else {
+      cartas.sort((a, b) => (numeroOrden(a.ID) - numeroOrden(b.ID)) * direccion);
+    }
+    return cartas;
+  }
+
+  function conectarFiltrosCatalogo() {
+    [filtrosCatalogo.esfera, filtrosCatalogo.tipo, filtrosCatalogo.numero,
+      filtrosCatalogo.campo, filtrosCatalogo.direccion].filter(Boolean)
+      .forEach((control) => control.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarCatalogoConstructor));
+    filtrosCatalogo.limpiar?.addEventListener("click", () => {
+      if (filtrosCatalogo.esfera) filtrosCatalogo.esfera.value = "";
+      if (filtrosCatalogo.tipo) filtrosCatalogo.tipo.value = "";
+      if (filtrosCatalogo.numero) filtrosCatalogo.numero.value = "";
+      if (filtrosCatalogo.campo) filtrosCatalogo.campo.value = "catalogo";
+      if (filtrosCatalogo.direccion) filtrosCatalogo.direccion.value = "asc";
+      renderizarCatalogoConstructor();
+    });
+  }
+
+  conectarFiltrosCatalogo();
+
   function renderizarCatalogoConstructor() {
     catalogoGrid.innerHTML = "";
-    estadoJuego.catalogo.forEach((carta) => {
+    if (catalogoDeRespaldo) {
+      const aviso = document.createElement("p");
+      aviso.className = "catalogo-aviso";
+      aviso.setAttribute("role", "status");
+      aviso.textContent = "CATÁLOGO DE RESPALDO: no se pudo cargar data/cartas_exp1.json. Se muestran únicamente las cartas de prueba incluidas en el código.";
+      catalogoGrid.appendChild(aviso);
+    }
+    const cartasVisibles = obtenerCartasFiltradas();
+    if (filtrosCatalogo.resultados) {
+      filtrosCatalogo.resultados.textContent = `${cartasVisibles.length} DE ${estadoJuego.catalogo.length} CARTAS`;
+    }
+    if (!cartasVisibles.length) {
+      const sinResultados = document.createElement("p");
+      sinResultados.className = "catalogo-sin-resultados";
+      sinResultados.textContent = "NO HAY CARTAS QUE COINCIDAN CON LOS FILTROS.";
+      catalogoGrid.appendChild(sinResultados);
+    }
+    cartasVisibles.forEach((carta) => {
       const item = document.createElement("button");
       item.type = "button";
       item.className = "carta-catalogo constructor-carta";
@@ -198,8 +567,14 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
   }
 
   function prepararMazosDePartida() {
-    const base = estadoJuego.mazoConstruido.map((c) => ({ ...c }));
-    estadoJuego.mazosPartida = { jugador: mezclar(base), rival: mezclar(base) };
+    const configuracion = estadoJuego.configuracionMazos;
+    const mazoJugador = obtenerMazo(configuracion.jugadorId) || obtenerMazo(estadoJuego.mazoActivoId);
+    const mazoRival = configuracion.rivalPersonalizado
+      ? obtenerMazo(configuracion.rivalId)
+      : mazoJugador;
+    const baseJugador = (mazoJugador?.cartas || []).map((c) => ({ ...c }));
+    const baseRival = (mazoRival?.cartas || baseJugador).map((c) => ({ ...c }));
+    estadoJuego.mazosPartida = { jugador: mezclar(baseJugador), rival: mezclar(baseRival) };
     actualizarContadoresPartida();
     renderizarPanelZona();
   }
@@ -319,6 +694,15 @@ export function crearSistemaMazos(elementos, { agregarCartaAMano, abrirVisorCart
     cargarCatalogo, renderizarCatalogoConstructor, renderizarMazoConstruido,
     prepararMazosDePartida, robarCarta, robarHasta, robarManosIniciales,
     reciclarDescarte, actualizarContadoresPartida, renderizarPanelZona,
-    tieneMazoValido: () => estadoJuego.mazoConstruido.length >= MINIMO_MAZO,
+    tieneMazoValido: () => {
+      const jugador = obtenerMazo(estadoJuego.configuracionMazos.jugadorId);
+      const rival = obtenerMazo(estadoJuego.configuracionMazos.rivalId);
+      const jugadorValido = (jugador?.cartas.length || 0) >= MINIMO_MAZO;
+      const rivalValido = !estadoJuego.configuracionMazos.rivalPersonalizado || (rival?.cartas.length || 0) >= MINIMO_MAZO;
+      return jugadorValido && rivalValido;
+    },
+    renderizarAdministrador,
+    abrirEditor,
+    volverAlAdministrador,
   };
 }

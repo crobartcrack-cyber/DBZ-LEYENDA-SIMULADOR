@@ -17,8 +17,59 @@
       <div class="menu-version">LOCAL BATTLE SYSTEM</div>
     </header>
 
-    <div class="menu-principal-contenido">
+    <section class="administrador-mazos" id="administrador-mazos">
+      <div class="admin-mazos-hero">
+        <div>
+          <span class="sobrelinea">DBZ · LEYENDA / ARCHIVO PERSONAL</span>
+          <h1>FORJÁ TUS <em>MAZOS</em></h1>
+          <p>Guardá distintas estrategias y elegí cómo se enfrentarán los guerreros.</p>
+        </div>
+        <div class="admin-mazos-emblema" aria-hidden="true">Z</div>
+      </div>
+
+      <div class="admin-configuracion-combate">
+        <section class="admin-config-card">
+          <span class="sobrelinea">TU ESTRATEGIA</span>
+          <label for="seleccion-mazo-jugador">MAZO DEL JUGADOR</label>
+          <select id="seleccion-mazo-jugador" class="admin-select"></select>
+          <small>Este mazo se utilizará para tu lado del combate.</small>
+        </section>
+        <section class="admin-config-card admin-config-rival">
+          <div class="admin-rival-titulo">
+            <span class="sobrelinea">PREPARÁ EL DESAFÍO</span>
+            <label class="admin-switch-label" for="rival-personalizado">
+              <input type="checkbox" id="rival-personalizado">
+              <span class="admin-switch"></span>
+              <strong>MAZO PERSONALIZADO DEL RIVAL</strong>
+            </label>
+          </div>
+          <div id="rival-selector" class="rival-selector oculto">
+            <label for="seleccion-mazo-rival">MAZO DEL RIVAL</label>
+            <select id="seleccion-mazo-rival" class="admin-select"></select>
+          </div>
+          <small>Si está desactivado, el rival utilizará una copia de tu mazo.</small>
+        </section>
+      </div>
+
+      <div class="admin-lista-heading">
+        <div><span class="sobrelinea">TU COLECCIÓN</span><h2>MAZOS GUARDADOS</h2></div>
+        <button type="button" id="crear-mazo" class="btn-crear-mazo"><span>＋</span> CREAR MAZO</button>
+      </div>
+      <div id="lista-mazos" class="lista-mazos"></div>
+      <div class="admin-acciones-finales">
+        <span id="estado-guardado" role="status">✦ LOS CAMBIOS SE GUARDAN AUTOMÁTICAMENTE EN ESTE DISPOSITIVO</span>
+        <button type="button" id="admin-btn-jugar" class="btn-jugar" disabled><span>INICIAR PARTIDA</span><b>➜</b></button>
+      </div>
+    </section>
+
+    <div class="menu-principal-contenido oculto" id="editor-mazo">
       <section class="constructor-panel">
+        <div class="editor-mazo-toolbar">
+          <button type="button" id="volver-administrador" class="btn-volver-admin">← VOLVER A MIS MAZOS</button>
+          <div><span class="sobrelinea">ARCHIVO DE GUERREROS</span><strong id="titulo-editor-mazo">EDITANDO MAZO</strong></div>
+          <label for="nombre-mazo-editor">NOMBRE DEL MAZO</label>
+          <input id="nombre-mazo-editor" type="text" maxlength="36" placeholder="Nombre del mazo">
+        </div>
         <div class="panel-heading">
           <div><span class="sobrelinea">TU ESTRATEGIA COMIENZA AQUÍ</span><h1>CREACIÓN DE <em>MAZO</em></h1></div>
           <div class="contador-mazo"><strong id="contador-mazo">0</strong><span>CARTAS</span></div>
@@ -30,6 +81,34 @@
           <div class="mazo-construccion-grid" id="mazo-construccion-grid"></div>
         </div>
         <div class="catalogo-heading"><div><span class="sobrelinea">ARCHIVO DE GUERREROS</span><h2>CATÁLOGO DE CARTAS</h2></div><span class="catalogo-ayuda">CLICK PARA AGREGAR · MANTENER PRESIONADO PARA VER</span></div>
+        <section class="catalogo-filtros" aria-label="Filtros y orden del catálogo">
+          <label class="filtro-campo">ESFERA
+            <select id="filtro-esfera"><option value="">TODAS</option></select>
+          </label>
+          <label class="filtro-campo">TIPO DE CARTA
+            <select id="filtro-tipo"><option value="">TODOS</option></select>
+          </label>
+          <label class="filtro-campo">NÚMERO / ID
+            <input id="filtro-numero" type="number" min="0" step="1" inputmode="numeric" placeholder="Buscar ID">
+          </label>
+          <label class="filtro-campo">ORDENAR POR
+            <select id="orden-campo">
+              <option value="catalogo">ORDEN DEL CATÁLOGO</option>
+              <option value="id">NÚMERO / ID</option>
+              <option value="ataque">ATAQUE</option>
+              <option value="defensa">DEFENSA</option>
+              <option value="esfera">ESFERA</option>
+            </select>
+          </label>
+          <label class="filtro-campo">ORDEN
+            <select id="orden-direccion">
+              <option value="asc">MENOR A MAYOR</option>
+              <option value="desc">MAYOR A MENOR</option>
+            </select>
+          </label>
+          <button type="button" id="limpiar-filtros" class="btn-limpiar-filtros">LIMPIAR</button>
+          <span id="catalogo-resultados" class="catalogo-resultados" aria-live="polite">CARGANDO CARTAS...</span>
+        </section>
         <div class="constructor-catalogo" id="constructor-catalogo"><div class="catalogo-cargando">CARGANDO ARCHIVO...</div></div>
       </section>
 
@@ -44,7 +123,7 @@
           <span class="modo-check">✓</span>
         </button>
         <div class="modo-proximamente"><span>02</span><div><strong>PRÓXIMAMENTE</strong><small>NUEVOS MODOS EN CAMINO</small></div><span>🔒</span></div>
-        <div class="modo-resumen"><span>FORMATO</span><strong>COMBATE LOCAL</strong><span>MAZO DE CADA JUGADOR</span><strong>EL MISMO MAZO CREADO</strong></div>
+        <div class="modo-resumen"><span>FORMATO</span><strong>COMBATE LOCAL</strong><span>MAZO DE CADA JUGADOR</span><strong>MAZO CONFIGURADO EN EL ARCHIVO</strong></div>
         <button type="button" id="btn-jugar" class="btn-jugar" disabled><span>INICIAR PARTIDA</span><b>➜</b></button>
         <div class="requisito-mazo" id="requisito-mazo">NECESITÁS AL MENOS 40 CARTAS</div>
       </aside>
@@ -300,6 +379,14 @@
             <span class="configuracion-toggle-indicador"></span>
           </button>
         </div>
+        <div class="configuracion-fila">
+          <span class="configuracion-icono-sonido configuracion-icono-pantalla" aria-hidden="true">⛶</span>
+          <button type="button" class="configuracion-toggle" id="toggle-pantalla-completa"
+            role="switch" aria-checked="false" aria-label="Activar pantalla completa" title="Activar pantalla completa">
+            <span class="configuracion-toggle-indicador"></span>
+          </button>
+        </div>
+        <small class="configuracion-ayuda" id="estado-pantalla-completa" aria-live="polite">PANTALLA COMPLETA</small>
         <button type="button" class="configuracion-volver" id="configuracion-volver">
           VOLVER AL MENÚ
         </button>
